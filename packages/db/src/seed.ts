@@ -358,7 +358,12 @@ async function seed(preset: Preset) {
     // Plans keep each item's stage timeline so transitions can be built from
     // exactly the same timestamps once the generated ids come back. Deriving
     // both from one source guarantees the history agrees with the item.
-    const plans: { externalId: string; stageTimes: Date[]; finalIndex: number }[] = [];
+    const plans: {
+      externalId: string;
+      stageTimes: Date[];
+      finalIndex: number;
+      blockedAt: Date | null;
+    }[] = [];
 
     for (let i = 0; i < spec.items; i++) {
       const createdAt = addDays(EPOCH, randInt(0, HISTORY_DAYS - 3));
@@ -410,6 +415,15 @@ async function seed(preset: Preset) {
       // Blocked is an overlay on in-flight work, not a stage on the path.
       const blocked = !!blockedTerm && finalIndex > 0 && finalIndex < DONE_INDEX && chance(0.12);
       const shownTerm = blocked ? blockedTerm! : stageTerm;
+      // Moving into the blocked column is itself a transition, and it has to be
+      // recorded. Without it the item reads "On hold" while its history stops at
+      // "In progress", so the cumulative flow diagram -- which is built from
+      // transitions -- disagrees with the blocked-count tile, which is read off
+      // work_items. Two numbers on one dashboard that contradict each other.
+      const blockedAt =
+        blocked ?
+          new Date(Math.min(NOW.getTime(), stageTimes[finalIndex]!.getTime() + randInt(1, 72) * 3_600_000))
+        : null;
       const externalId = `item-${spec.key.toLowerCase()}-${i + 1}`;
 
       itemValues.push({
@@ -439,7 +453,7 @@ async function seed(preset: Preset) {
         externalId,
       });
 
-      plans.push({ externalId, stageTimes, finalIndex });
+      plans.push({ externalId, stageTimes, finalIndex, blockedAt });
     }
 
     const insertedItems = await db.insert(s.workItems).values(itemValues).returning({
@@ -474,6 +488,26 @@ async function seed(preset: Preset) {
           toCategory: to.statusCategory!,
           occurredAt: at,
           durationInFromSeconds: Math.round((at.getTime() - prevAt.getTime()) / 1000),
+          actorId: pick(insertedPeople).id,
+        });
+      }
+
+      // ...and the overlay move, last, so the item's final status term always
+      // equals the last transition's destination.
+      if (plan.blockedAt && blockedTerm) {
+        const from = path[plan.finalIndex]!;
+        const prevAt = plan.stageTimes[plan.finalIndex]!;
+        transitionValues.push({
+          workItemId: itemId,
+          projectId: project.id,
+          fromTermId: from.id,
+          toTermId: blockedTerm.id,
+          fromStatus: from.label,
+          toStatus: blockedTerm.label,
+          fromCategory: from.statusCategory,
+          toCategory: blockedTerm.statusCategory!,
+          occurredAt: plan.blockedAt,
+          durationInFromSeconds: Math.round((plan.blockedAt.getTime() - prevAt.getTime()) / 1000),
           actorId: pick(insertedPeople).id,
         });
       }

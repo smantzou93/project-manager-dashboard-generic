@@ -437,10 +437,17 @@ export const workItems = pgTable(
 
     /**
      * Timestamps that define the flow metrics:
-     *   lead time  = completedAt - createdAt   (customer-visible wait)
-     *   cycle time = completedAt - startedAt   (team working time)
+     *   lead time  = completedAt - sourceCreatedAt  (customer-visible wait)
+     *   cycle time = completedAt - startedAt        (team working time)
      * Kept as real columns rather than derived from transitions so that sources
      * which supply only summary data still yield usable metrics.
+     *
+     * Lead time measures from `sourceCreatedAt` -- when the item came into
+     * existence where the work actually lives -- and NEVER from `createdAt`
+     * below, which is row bookkeeping and equals the moment this database first
+     * saw the row. For a CSV import those differ by months, so computing lead
+     * time from `createdAt` would report "imported 5 minutes ago" as the wait a
+     * customer experienced.
      */
     sourceCreatedAt: timestamp('source_created_at', { withTimezone: true }),
     startedAt: timestamp('started_at', { withTimezone: true }),
@@ -457,6 +464,7 @@ export const workItems = pgTable(
 
     /** Provenance: which run last touched this row. */
     ingestionRunId: uuid('ingestion_run_id'),
+    /** Row bookkeeping, not domain history. For metrics use sourceCreatedAt. */
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
   },
