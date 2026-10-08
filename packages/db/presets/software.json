@@ -1,0 +1,141 @@
+{
+  "key": "software",
+  "label": "Software delivery",
+  "description": "Agile software teams: epics, stories, bugs, sprints and story points.",
+  "labels": {
+    "portfolio": "Portfolio",
+    "project": "Project",
+    "iteration": "Sprint",
+    "workItem": "Issue",
+    "milestone": "Release",
+    "estimateUnit": "points",
+    "impediment": "Blocker"
+  },
+  "taxonomies": [
+    {
+      "key": "work_item_type",
+      "label": "Issue types",
+      "description": "What kind of work an item represents.",
+      "terms": [
+        { "slug": "epic", "label": "Epic", "color": "violet", "icon": "layers" },
+        { "slug": "story", "label": "Story", "color": "blue", "icon": "bookmark", "isDefault": true },
+        { "slug": "task", "label": "Task", "color": "slate", "icon": "check-square" },
+        { "slug": "bug", "label": "Bug", "color": "red", "icon": "bug" },
+        { "slug": "spike", "label": "Spike", "color": "amber", "icon": "search" },
+        { "slug": "subtask", "label": "Sub-task", "color": "slate", "icon": "corner-down-right" },
+        { "slug": "chore", "label": "Chore", "color": "teal", "icon": "tool" }
+      ]
+    },
+    {
+      "key": "workflow_status",
+      "label": "Workflow statuses",
+      "description": "The board columns. Each maps onto a metrics bucket.",
+      "terms": [
+        { "slug": "backlog", "label": "Backlog", "color": "slate", "statusCategory": "todo", "isDefault": true },
+        { "slug": "ready", "label": "Ready", "color": "cyan", "statusCategory": "todo" },
+        { "slug": "in_progress", "label": "In Progress", "color": "blue", "statusCategory": "in_progress" },
+        { "slug": "in_review", "label": "In Review", "color": "violet", "statusCategory": "in_review" },
+        { "slug": "blocked", "label": "Blocked", "color": "red", "statusCategory": "blocked" },
+        { "slug": "done", "label": "Done", "color": "green", "statusCategory": "done" },
+        { "slug": "cancelled", "label": "Cancelled", "color": "slate", "statusCategory": "cancelled" }
+      ]
+    },
+    {
+      "key": "project_status",
+      "label": "Project statuses",
+      "terms": [
+        { "slug": "planning", "label": "Planning", "color": "cyan" },
+        { "slug": "active", "label": "Active", "color": "blue", "isDefault": true },
+        { "slug": "on_hold", "label": "On hold", "color": "amber" },
+        { "slug": "completed", "label": "Completed", "color": "green" },
+        { "slug": "cancelled", "label": "Cancelled", "color": "slate" }
+      ]
+    },
+    {
+      "key": "health",
+      "label": "Health",
+      "description": "The PM's judgement call, which may disagree with the raw numbers.",
+      "terms": [
+        { "slug": "on_track", "label": "On track", "color": "green" },
+        { "slug": "at_risk", "label": "At risk", "color": "amber" },
+        { "slug": "off_track", "label": "Off track", "color": "red" },
+        { "slug": "unknown", "label": "Not assessed", "color": "slate", "isDefault": true }
+      ]
+    },
+    {
+      "key": "priority",
+      "label": "Priority",
+      "terms": [
+        { "slug": "p0", "label": "P0 — Critical", "color": "red" },
+        { "slug": "p1", "label": "P1 — High", "color": "orange" },
+        { "slug": "p2", "label": "P2 — Medium", "color": "amber", "isDefault": true },
+        { "slug": "p3", "label": "P3 — Low", "color": "slate" }
+      ]
+    },
+    {
+      "key": "severity",
+      "label": "Severity",
+      "terms": [
+        { "slug": "low", "label": "Low", "color": "slate" },
+        { "slug": "medium", "label": "Medium", "color": "amber", "isDefault": true },
+        { "slug": "high", "label": "High", "color": "orange" },
+        { "slug": "critical", "label": "Critical", "color": "red" }
+      ]
+    },
+    {
+      "key": "impediment_kind",
+      "label": "Impediment kinds",
+      "terms": [
+        { "slug": "blocker", "label": "Blocker", "color": "red", "isDefault": true },
+        { "slug": "risk", "label": "Risk", "color": "amber" },
+        { "slug": "dependency", "label": "Dependency", "color": "violet" }
+      ]
+    },
+    {
+      "key": "impediment_category",
+      "label": "What's holding us back",
+      "description": "Cause buckets. The dashboard groups open impediments by these to find themes.",
+      "terms": [
+        { "slug": "dependency", "label": "Cross-team dependency", "color": "violet" },
+        { "slug": "resourcing", "label": "Resourcing", "color": "orange" },
+        { "slug": "unclear_requirements", "label": "Unclear requirements", "color": "amber" },
+        { "slug": "external_vendor", "label": "External vendor", "color": "pink" },
+        { "slug": "technical_debt", "label": "Technical debt", "color": "slate" },
+        { "slug": "environment", "label": "Environment / tooling", "color": "cyan" },
+        { "slug": "approval", "label": "Awaiting approval", "color": "blue" }
+      ]
+    }
+  ],
+  "demo": {
+    "roles": ["Engineering Lead", "Senior Engineer", "Engineer", "Designer", "QA", "Product Manager", "Data Engineer", "Engineering Manager"],
+    "portfolios": [
+      { "key": "PLATFORM", "name": "Platform Modernisation", "description": "Core infrastructure and developer experience." },
+      { "key": "CUSTOMER", "name": "Customer Experience", "description": "Everything the end customer touches." }
+    ],
+    "projects": [
+      { "key": "APOLLO", "name": "Apollo — Billing Rewrite", "portfolio": "PLATFORM", "status": "active", "health": "at_risk", "items": 150 },
+      { "key": "HERMES", "name": "Hermes — Notification Service", "portfolio": "PLATFORM", "status": "active", "health": "on_track", "items": 110 },
+      { "key": "ATLAS", "name": "Atlas — Data Warehouse", "portfolio": "PLATFORM", "status": "active", "health": "off_track", "items": 130 },
+      { "key": "IRIS", "name": "Iris — Mobile Redesign", "portfolio": "CUSTOMER", "status": "active", "health": "on_track", "items": 120 },
+      { "key": "VESTA", "name": "Vesta — Self-Serve Onboarding", "portfolio": "CUSTOMER", "status": "active", "health": "at_risk", "items": 95 },
+      { "key": "JUNO", "name": "Juno — Loyalty Programme", "portfolio": "CUSTOMER", "status": "completed", "health": "on_track", "items": 80 }
+    ],
+    "milestones": ["Discovery complete", "Alpha", "Beta", "GA launch"],
+    "epics": ["Foundations", "Core flows", "Integrations", "Polish & launch"],
+    "titleVerbs": ["Implement", "Fix", "Refactor", "Add", "Investigate", "Migrate", "Document", "Harden", "Optimise"],
+    "titleNouns": [
+      "invoice generation", "retry handling", "webhook delivery", "rate limiter", "audit log",
+      "schema migration", "payment reconciliation", "session handling", "export pipeline",
+      "search indexing", "error reporting", "feature flags", "onboarding flow", "push notifications"
+    ],
+    "impedimentTitles": {
+      "dependency": ["Blocked on payments API contract", "Waiting on auth team SDK release"],
+      "resourcing": ["No available reviewer for payments code", "Designer allocated to another launch"],
+      "unclear_requirements": ["Tax rules for EU undecided", "Refund policy not signed off"],
+      "external_vendor": ["Vendor sandbox returning 500s", "Third-party SLA breach under review"],
+      "technical_debt": ["Legacy migration path blocks deploys", "Flaky integration suite"],
+      "environment": ["Staging database out of disk", "CI runners saturated"],
+      "approval": ["Security review not scheduled", "Legal sign-off outstanding"]
+    }
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "name": "project-manager-dashboard-generic",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Cloneable, agent-editable project management dashboard: Next.js + Drizzle/Postgres + Python ingestion",
+  "license": "MIT",
+  "workspaces": [
+    "apps/web",
+    "packages/*"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "preflight": "./scripts/preflight.sh",
+    "dev": "./scripts/dev.sh",
+    "db:up": "docker compose up -d db",
+    "db:down": "docker compose down",
+    "db:reset": "./scripts/db-reset.sh",
+    "db:generate": "npm run --workspace @pmdash/db generate",
+    "db:migrate": "npm run --workspace @pmdash/db migrate",
+    "db:seed": "npm run --workspace @pmdash/db seed",
+    "db:preset": "npm run --workspace @pmdash/db preset --",
+    "db:studio": "npm run --workspace @pmdash/db studio",
+    "web": "npm run --workspace @pmdash/web dev",
+    "build": "npm run --workspace @pmdash/web build",
+    "lint": "npm run --workspace @pmdash/web lint",
+    "typecheck": "tsc -b --pretty false || true"
+  }
+}

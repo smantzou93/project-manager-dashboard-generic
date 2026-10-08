@@ -1,0 +1,140 @@
+{
+  "key": "interior-design",
+  "label": "Interior design",
+  "description": "Design studios: concepts, specifications, FF&E procurement, client approvals and installs, tracked in billable hours.",
+  "labels": {
+    "portfolio": "Studio",
+    "project": "Project",
+    "iteration": "Stage",
+    "workItem": "Task",
+    "milestone": "Deliverable",
+    "estimateUnit": "hours",
+    "impediment": "Issue"
+  },
+  "taxonomies": [
+    {
+      "key": "work_item_type",
+      "label": "Task types",
+      "terms": [
+        { "slug": "phase", "label": "Phase", "color": "violet", "icon": "layers" },
+        { "slug": "task", "label": "Task", "color": "slate", "icon": "check-square", "isDefault": true },
+        { "slug": "concept", "label": "Concept", "color": "pink", "icon": "palette" },
+        { "slug": "site_visit", "label": "Site visit", "color": "cyan", "icon": "map-pin" },
+        { "slug": "specification", "label": "Specification", "color": "blue", "icon": "file-text" },
+        { "slug": "procurement", "label": "Procurement", "color": "amber", "icon": "shopping-cart" },
+        { "slug": "install", "label": "Install", "color": "teal", "icon": "hammer" },
+        { "slug": "revision", "label": "Revision", "color": "orange", "icon": "rotate-ccw" },
+        { "slug": "client_review", "label": "Client review", "color": "green", "icon": "eye" }
+      ]
+    },
+    {
+      "key": "workflow_status",
+      "label": "Workflow statuses",
+      "terms": [
+        { "slug": "brief", "label": "Brief", "color": "slate", "statusCategory": "todo", "isDefault": true },
+        { "slug": "concept", "label": "Concept", "color": "pink", "statusCategory": "todo" },
+        { "slug": "in_progress", "label": "In progress", "color": "blue", "statusCategory": "in_progress" },
+        { "slug": "client_review", "label": "With client", "color": "violet", "statusCategory": "in_review" },
+        { "slug": "awaiting_approval", "label": "Awaiting approval", "color": "red", "statusCategory": "blocked" },
+        { "slug": "installed", "label": "Installed", "color": "green", "statusCategory": "done" },
+        { "slug": "dropped", "label": "Dropped", "color": "slate", "statusCategory": "cancelled" }
+      ]
+    },
+    {
+      "key": "project_status",
+      "label": "Project statuses",
+      "terms": [
+        { "slug": "enquiry", "label": "Enquiry", "color": "cyan" },
+        { "slug": "proposal", "label": "Proposal", "color": "amber" },
+        { "slug": "active", "label": "In design", "color": "blue", "isDefault": true },
+        { "slug": "installation", "label": "Installation", "color": "violet" },
+        { "slug": "completed", "label": "Completed", "color": "green" },
+        { "slug": "on_hold", "label": "On hold", "color": "orange" }
+      ]
+    },
+    {
+      "key": "health",
+      "label": "Health",
+      "terms": [
+        { "slug": "on_track", "label": "On track", "color": "green" },
+        { "slug": "at_risk", "label": "At risk", "color": "amber" },
+        { "slug": "off_track", "label": "Behind", "color": "red" },
+        { "slug": "unknown", "label": "Not assessed", "color": "slate", "isDefault": true }
+      ]
+    },
+    {
+      "key": "priority",
+      "label": "Priority",
+      "terms": [
+        { "slug": "urgent", "label": "Urgent", "color": "red" },
+        { "slug": "high", "label": "High", "color": "orange" },
+        { "slug": "normal", "label": "Normal", "color": "amber", "isDefault": true },
+        { "slug": "low", "label": "Low", "color": "slate" }
+      ]
+    },
+    {
+      "key": "severity",
+      "label": "Severity",
+      "terms": [
+        { "slug": "low", "label": "Low", "color": "slate" },
+        { "slug": "medium", "label": "Medium", "color": "amber", "isDefault": true },
+        { "slug": "high", "label": "High", "color": "orange" },
+        { "slug": "critical", "label": "Critical — delays install", "color": "red" }
+      ]
+    },
+    {
+      "key": "impediment_kind",
+      "label": "Issue kinds",
+      "terms": [
+        { "slug": "blocker", "label": "Blocker", "color": "red", "isDefault": true },
+        { "slug": "risk", "label": "Risk", "color": "amber" },
+        { "slug": "dependency", "label": "Dependency", "color": "violet" }
+      ]
+    },
+    {
+      "key": "impediment_category",
+      "label": "What's holding us back",
+      "terms": [
+        { "slug": "client_approval", "label": "Awaiting client approval", "color": "violet" },
+        { "slug": "lead_time", "label": "Supplier lead time", "color": "orange" },
+        { "slug": "supplier", "label": "Supplier issue", "color": "pink" },
+        { "slug": "budget", "label": "Budget / sign-off", "color": "amber" },
+        { "slug": "site_readiness", "label": "Site not ready", "color": "cyan" },
+        { "slug": "access", "label": "Access / delivery", "color": "blue" },
+        { "slug": "measurement", "label": "Measurement discrepancy", "color": "slate" }
+      ]
+    }
+  ],
+  "demo": {
+    "roles": ["Principal Designer", "Senior Designer", "Designer", "FF&E Specialist", "Project Coordinator", "Draughtsperson", "Procurement Lead", "Studio Manager"],
+    "portfolios": [
+      { "key": "RESIDENTIAL", "name": "Residential", "description": "Private homes and apartments." },
+      { "key": "HOSPITALITY", "name": "Hospitality & Workplace", "description": "Hotels, restaurants and offices." }
+    ],
+    "projects": [
+      { "key": "ELM", "name": "Elm House — Full Refurbishment", "portfolio": "RESIDENTIAL", "status": "active", "health": "on_track", "items": 95 },
+      { "key": "HARBOUR", "name": "Harbour Hotel — Lobby & Suites", "portfolio": "HOSPITALITY", "status": "active", "health": "at_risk", "items": 130 },
+      { "key": "LOFT", "name": "Warehouse Loft Conversion", "portfolio": "RESIDENTIAL", "status": "installation", "health": "at_risk", "items": 85 },
+      { "key": "BISTRO", "name": "Copper Lane Bistro", "portfolio": "HOSPITALITY", "status": "active", "health": "off_track", "items": 100 },
+      { "key": "PENTHOUSE", "name": "Riverbank Penthouse", "portfolio": "RESIDENTIAL", "status": "proposal", "health": "on_track", "items": 70 },
+      { "key": "STUDIO", "name": "Northside Co-working Studio", "portfolio": "HOSPITALITY", "status": "completed", "health": "on_track", "items": 80 }
+    ],
+    "milestones": ["Concept signed off", "Detailed design issued", "FF&E ordered", "Install complete"],
+    "epics": ["Concept & mood", "Detailed design", "Procurement", "Install & styling"],
+    "titleVerbs": ["Specify", "Source", "Draft", "Present", "Revise", "Measure", "Order", "Install", "Style"],
+    "titleNouns": [
+      "living room joinery", "kitchen stone selection", "bedroom lighting scheme", "bathroom tiling",
+      "soft furnishings", "dining chairs", "entrance hall rug", "window treatments",
+      "wardrobe elevations", "colour palette", "artwork package", "reception desk", "bar millwork", "floor finishes"
+    ],
+    "impedimentTitles": {
+      "client_approval": ["Client undecided on stone finish", "Scheme sign-off slipped two weeks"],
+      "lead_time": ["Bespoke sofa quoted 16-week lead", "Imported tiles delayed at customs"],
+      "supplier": ["Joinery supplier quality issue", "Fabric discontinued mid-order"],
+      "budget": ["FF&E budget over by 12%", "Additional works not yet approved"],
+      "site_readiness": ["Plastering incomplete before install", "Electrics not first-fixed"],
+      "access": ["Lift too small for oversized pieces", "No loading bay on delivery day"],
+      "measurement": ["Alcove dimensions differ from survey", "Ceiling height inconsistent across rooms"]
+    }
+  }
+}

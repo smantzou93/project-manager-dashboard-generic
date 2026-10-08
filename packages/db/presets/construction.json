@@ -1,0 +1,143 @@
+{
+  "key": "construction",
+  "label": "Construction",
+  "description": "Construction and capital projects: RFIs, submittals, inspections, punch lists, phases measured in days.",
+  "labels": {
+    "portfolio": "Programme",
+    "project": "Project",
+    "iteration": "Phase",
+    "workItem": "Work item",
+    "milestone": "Milestone",
+    "estimateUnit": "days",
+    "impediment": "Issue"
+  },
+  "taxonomies": [
+    {
+      "key": "work_item_type",
+      "label": "Work item types",
+      "terms": [
+        { "slug": "work_package", "label": "Work package", "color": "violet", "icon": "layers" },
+        { "slug": "task", "label": "Task", "color": "slate", "icon": "check-square", "isDefault": true },
+        { "slug": "rfi", "label": "RFI", "color": "blue", "icon": "help-circle", "description": "Request for information issued to the design team." },
+        { "slug": "submittal", "label": "Submittal", "color": "cyan", "icon": "file-text", "description": "Shop drawings, product data or samples for approval." },
+        { "slug": "inspection", "label": "Inspection", "color": "teal", "icon": "clipboard-check" },
+        { "slug": "punch_item", "label": "Punch item", "color": "orange", "icon": "list-checks", "description": "Snag found during walkthrough; must close before handover." },
+        { "slug": "change_order", "label": "Change order", "color": "pink", "icon": "file-diff" },
+        { "slug": "procurement", "label": "Procurement", "color": "amber", "icon": "truck" },
+        { "slug": "safety_observation", "label": "Safety observation", "color": "red", "icon": "shield-alert" }
+      ]
+    },
+    {
+      "key": "workflow_status",
+      "label": "Workflow statuses",
+      "description": "Field workflow. Each maps onto a metrics bucket so the flow charts keep working.",
+      "terms": [
+        { "slug": "not_started", "label": "Not started", "color": "slate", "statusCategory": "todo", "isDefault": true },
+        { "slug": "scheduled", "label": "Scheduled", "color": "cyan", "statusCategory": "todo" },
+        { "slug": "in_progress", "label": "In progress", "color": "blue", "statusCategory": "in_progress" },
+        { "slug": "awaiting_inspection", "label": "Awaiting inspection", "color": "violet", "statusCategory": "in_review" },
+        { "slug": "on_hold", "label": "On hold", "color": "red", "statusCategory": "blocked" },
+        { "slug": "complete", "label": "Complete", "color": "green", "statusCategory": "done" },
+        { "slug": "void", "label": "Void", "color": "slate", "statusCategory": "cancelled" }
+      ]
+    },
+    {
+      "key": "project_status",
+      "label": "Project statuses",
+      "terms": [
+        { "slug": "pre_construction", "label": "Pre-construction", "color": "cyan" },
+        { "slug": "permitting", "label": "Permitting", "color": "amber" },
+        { "slug": "active", "label": "Construction", "color": "blue", "isDefault": true },
+        { "slug": "closeout", "label": "Closeout", "color": "violet" },
+        { "slug": "completed", "label": "Handed over", "color": "green" },
+        { "slug": "on_hold", "label": "On hold", "color": "orange" }
+      ]
+    },
+    {
+      "key": "health",
+      "label": "Health",
+      "terms": [
+        { "slug": "on_track", "label": "On programme", "color": "green" },
+        { "slug": "at_risk", "label": "At risk", "color": "amber" },
+        { "slug": "off_track", "label": "Behind programme", "color": "red" },
+        { "slug": "unknown", "label": "Not assessed", "color": "slate", "isDefault": true }
+      ]
+    },
+    {
+      "key": "priority",
+      "label": "Priority",
+      "terms": [
+        { "slug": "critical_path", "label": "Critical path", "color": "red" },
+        { "slug": "high", "label": "High", "color": "orange" },
+        { "slug": "normal", "label": "Normal", "color": "amber", "isDefault": true },
+        { "slug": "low", "label": "Low", "color": "slate" }
+      ]
+    },
+    {
+      "key": "severity",
+      "label": "Severity",
+      "terms": [
+        { "slug": "low", "label": "Low", "color": "slate" },
+        { "slug": "medium", "label": "Medium", "color": "amber", "isDefault": true },
+        { "slug": "high", "label": "High", "color": "orange" },
+        { "slug": "critical", "label": "Critical — stops work", "color": "red" }
+      ]
+    },
+    {
+      "key": "impediment_kind",
+      "label": "Issue kinds",
+      "terms": [
+        { "slug": "blocker", "label": "Blocker", "color": "red", "isDefault": true },
+        { "slug": "risk", "label": "Risk", "color": "amber" },
+        { "slug": "dependency", "label": "Dependency", "color": "violet" }
+      ]
+    },
+    {
+      "key": "impediment_category",
+      "label": "What's holding us back",
+      "terms": [
+        { "slug": "permitting", "label": "Permitting / consent", "color": "amber" },
+        { "slug": "weather", "label": "Weather", "color": "cyan" },
+        { "slug": "material_delay", "label": "Material delay", "color": "orange" },
+        { "slug": "subcontractor", "label": "Subcontractor availability", "color": "violet" },
+        { "slug": "inspection_failure", "label": "Failed inspection", "color": "red" },
+        { "slug": "design_change", "label": "Design change", "color": "pink" },
+        { "slug": "labour", "label": "Labour shortage", "color": "blue" },
+        { "slug": "site_access", "label": "Site access", "color": "slate" }
+      ]
+    }
+  ],
+  "demo": {
+    "roles": ["Project Manager", "Site Superintendent", "Foreman", "Quantity Surveyor", "Safety Officer", "Architect", "Structural Engineer", "Procurement Lead"],
+    "portfolios": [
+      { "key": "COMMERCIAL", "name": "Commercial Developments", "description": "Offices, retail and mixed-use schemes." },
+      { "key": "INFRA", "name": "Infrastructure", "description": "Civil and public works." }
+    ],
+    "projects": [
+      { "key": "RIVER", "name": "Riverside Tower — Core & Shell", "portfolio": "COMMERCIAL", "status": "active", "health": "at_risk", "items": 140 },
+      { "key": "MARKET", "name": "Market Street Retail Fit-Out", "portfolio": "COMMERCIAL", "status": "active", "health": "on_track", "items": 100 },
+      { "key": "DEPOT", "name": "North Depot Expansion", "portfolio": "INFRA", "status": "active", "health": "off_track", "items": 125 },
+      { "key": "BRIDGE", "name": "Canal Bridge Replacement", "portfolio": "INFRA", "status": "permitting", "health": "at_risk", "items": 90 },
+      { "key": "CAMPUS", "name": "Southgate Campus Phase 2", "portfolio": "COMMERCIAL", "status": "active", "health": "on_track", "items": 115 },
+      { "key": "WAREHOUSE", "name": "Eastfield Warehouse", "portfolio": "INFRA", "status": "completed", "health": "on_track", "items": 75 }
+    ],
+    "milestones": ["Groundworks complete", "Structure topped out", "Watertight", "Practical completion"],
+    "epics": ["Substructure", "Superstructure", "Envelope & MEP", "Fit-out & handover"],
+    "titleVerbs": ["Install", "Inspect", "Pour", "Erect", "Survey", "Commission", "Remediate", "Procure", "Certify"],
+    "titleNouns": [
+      "level 3 slab", "curtain wall panels", "fire stopping", "mechanical risers", "drainage runs",
+      "steel connections", "roof membrane", "lift shaft", "electrical containment", "external cladding",
+      "piling records", "sprinkler mains", "façade anchors", "site hoarding"
+    ],
+    "impedimentTitles": {
+      "permitting": ["Building control sign-off outstanding", "Road closure permit not granted"],
+      "weather": ["High winds stopped crane lifts", "Frost delayed concrete pour"],
+      "material_delay": ["Curtain wall glazing delayed at port", "Structural steel batch rescheduled"],
+      "subcontractor": ["MEP subcontractor short-staffed", "Glazing crew double-booked"],
+      "inspection_failure": ["Fire stopping failed inspection", "Drainage pressure test failed"],
+      "design_change": ["Level 4 layout revised by architect", "Riser positions changed late"],
+      "labour": ["Shortage of certified welders", "Banksman unavailable for lifts"],
+      "site_access": ["Neighbouring works blocking east gate", "Crane oversail agreement pending"]
+    }
+  }
+}

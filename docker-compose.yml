@@ -1,0 +1,48 @@
+# Postgres for local development.
+#
+# Pinned to a specific minor so a `docker compose pull` months from now can't
+# silently move the database under an existing volume.
+#
+# Started for you by ./scripts/dev.sh -- you shouldn't need to run this directly.
+
+name: pmdash
+
+services:
+  db:
+    image: postgres:17.6-alpine
+    container_name: pmdash-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-pmdash}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: ${POSTGRES_DB:-pmdash}
+      # Deterministic collation keeps ORDER BY identical across machines.
+      POSTGRES_INITDB_ARGS: "--locale=C --encoding=UTF8"
+    ports:
+      # Bound to loopback only. Without the 127.0.0.1 prefix Docker would
+      # publish this on every interface, exposing the database to the network.
+      - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      # Anything in here runs once, on first init of an empty volume.
+      - ./packages/db/initdb:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      # `pg_isready` alone returns true while the init scripts are still
+      # running, so the real query is what other services should wait on.
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-pmdash} -d ${POSTGRES_DB:-pmdash} -q && psql -U ${POSTGRES_USER:-pmdash} -d ${POSTGRES_DB:-pmdash} -c 'select 1' >/dev/null"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
+    # Log every statement over 200ms so the triage docs have something to point
+    # at when the dashboard feels slow.
+    command: >
+      postgres
+      -c log_min_duration_statement=200
+      -c log_destination=stderr
+      -c shared_buffers=256MB
+      -c max_connections=100
+
+volumes:
+  pgdata:
+    name: pmdash-pgdata
