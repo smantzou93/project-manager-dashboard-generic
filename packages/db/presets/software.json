@@ -18,7 +18,13 @@
       "description": "What kind of work an item represents.",
       "terms": [
         { "slug": "epic", "label": "Epic", "color": "violet", "icon": "layers" },
-        { "slug": "story", "label": "Story", "color": "blue", "icon": "bookmark", "isDefault": true },
+        {
+          "slug": "story",
+          "label": "Story",
+          "color": "blue",
+          "icon": "bookmark",
+          "isDefault": true
+        },
         { "slug": "task", "label": "Task", "color": "slate", "icon": "check-square" },
         { "slug": "bug", "label": "Bug", "color": "red", "icon": "bug" },
         { "slug": "spike", "label": "Spike", "color": "amber", "icon": "search" },
@@ -31,13 +37,34 @@
       "label": "Workflow statuses",
       "description": "The board columns. Each maps onto a metrics bucket.",
       "terms": [
-        { "slug": "backlog", "label": "Backlog", "color": "slate", "statusCategory": "todo", "isDefault": true },
+        {
+          "slug": "backlog",
+          "label": "Backlog",
+          "color": "slate",
+          "statusCategory": "todo",
+          "isDefault": true
+        },
         { "slug": "ready", "label": "Ready", "color": "cyan", "statusCategory": "todo" },
-        { "slug": "in_progress", "label": "In Progress", "color": "blue", "statusCategory": "in_progress" },
-        { "slug": "in_review", "label": "In Review", "color": "violet", "statusCategory": "in_review" },
+        {
+          "slug": "in_progress",
+          "label": "In Progress",
+          "color": "blue",
+          "statusCategory": "in_progress"
+        },
+        {
+          "slug": "in_review",
+          "label": "In Review",
+          "color": "violet",
+          "statusCategory": "in_review"
+        },
         { "slug": "blocked", "label": "Blocked", "color": "red", "statusCategory": "blocked" },
         { "slug": "done", "label": "Done", "color": "green", "statusCategory": "done" },
-        { "slug": "cancelled", "label": "Cancelled", "color": "slate", "statusCategory": "cancelled" }
+        {
+          "slug": "cancelled",
+          "label": "Cancelled",
+          "color": "slate",
+          "statusCategory": "cancelled"
+        }
       ]
     },
     {
@@ -107,30 +134,113 @@
     }
   ],
   "demo": {
-    "roles": ["Engineering Lead", "Senior Engineer", "Engineer", "Designer", "QA", "Product Manager", "Data Engineer", "Engineering Manager"],
+    "roles": [
+      "Engineering Lead",
+      "Senior Engineer",
+      "Engineer",
+      "Designer",
+      "QA",
+      "Product Manager",
+      "Data Engineer",
+      "Engineering Manager"
+    ],
     "portfolios": [
-      { "key": "PLATFORM", "name": "Platform Modernisation", "description": "Core infrastructure and developer experience." },
-      { "key": "CUSTOMER", "name": "Customer Experience", "description": "Everything the end customer touches." }
+      {
+        "key": "PLATFORM",
+        "name": "Platform Modernisation",
+        "description": "Core infrastructure and developer experience."
+      },
+      {
+        "key": "CUSTOMER",
+        "name": "Customer Experience",
+        "description": "Everything the end customer touches."
+      }
     ],
     "projects": [
-      { "key": "APOLLO", "name": "Apollo — Billing Rewrite", "portfolio": "PLATFORM", "status": "active", "health": "at_risk", "items": 150 },
-      { "key": "HERMES", "name": "Hermes — Notification Service", "portfolio": "PLATFORM", "status": "active", "health": "on_track", "items": 110 },
-      { "key": "ATLAS", "name": "Atlas — Data Warehouse", "portfolio": "PLATFORM", "status": "active", "health": "off_track", "items": 130 },
-      { "key": "IRIS", "name": "Iris — Mobile Redesign", "portfolio": "CUSTOMER", "status": "active", "health": "on_track", "items": 120 },
-      { "key": "VESTA", "name": "Vesta — Self-Serve Onboarding", "portfolio": "CUSTOMER", "status": "active", "health": "at_risk", "items": 95 },
-      { "key": "JUNO", "name": "Juno — Loyalty Programme", "portfolio": "CUSTOMER", "status": "completed", "health": "on_track", "items": 80 }
+      {
+        "key": "APOLLO",
+        "name": "Apollo — Billing Rewrite",
+        "portfolio": "PLATFORM",
+        "status": "active",
+        "health": "at_risk",
+        "items": 150
+      },
+      {
+        "key": "HERMES",
+        "name": "Hermes — Notification Service",
+        "portfolio": "PLATFORM",
+        "status": "active",
+        "health": "on_track",
+        "items": 110
+      },
+      {
+        "key": "ATLAS",
+        "name": "Atlas — Data Warehouse",
+        "portfolio": "PLATFORM",
+        "status": "active",
+        "health": "off_track",
+        "items": 130
+      },
+      {
+        "key": "IRIS",
+        "name": "Iris — Mobile Redesign",
+        "portfolio": "CUSTOMER",
+        "status": "active",
+        "health": "on_track",
+        "items": 120
+      },
+      {
+        "key": "VESTA",
+        "name": "Vesta — Self-Serve Onboarding",
+        "portfolio": "CUSTOMER",
+        "status": "active",
+        "health": "at_risk",
+        "items": 95
+      },
+      {
+        "key": "JUNO",
+        "name": "Juno — Loyalty Programme",
+        "portfolio": "CUSTOMER",
+        "status": "completed",
+        "health": "on_track",
+        "items": 80
+      }
     ],
     "milestones": ["Discovery complete", "Alpha", "Beta", "GA launch"],
     "epics": ["Foundations", "Core flows", "Integrations", "Polish & launch"],
-    "titleVerbs": ["Implement", "Fix", "Refactor", "Add", "Investigate", "Migrate", "Document", "Harden", "Optimise"],
+    "titleVerbs": [
+      "Implement",
+      "Fix",
+      "Refactor",
+      "Add",
+      "Investigate",
+      "Migrate",
+      "Document",
+      "Harden",
+      "Optimise"
+    ],
     "titleNouns": [
-      "invoice generation", "retry handling", "webhook delivery", "rate limiter", "audit log",
-      "schema migration", "payment reconciliation", "session handling", "export pipeline",
-      "search indexing", "error reporting", "feature flags", "onboarding flow", "push notifications"
+      "invoice generation",
+      "retry handling",
+      "webhook delivery",
+      "rate limiter",
+      "audit log",
+      "schema migration",
+      "payment reconciliation",
+      "session handling",
+      "export pipeline",
+      "search indexing",
+      "error reporting",
+      "feature flags",
+      "onboarding flow",
+      "push notifications"
     ],
     "impedimentTitles": {
       "dependency": ["Blocked on payments API contract", "Waiting on auth team SDK release"],
-      "resourcing": ["No available reviewer for payments code", "Designer allocated to another launch"],
+      "resourcing": [
+        "No available reviewer for payments code",
+        "Designer allocated to another launch"
+      ],
       "unclear_requirements": ["Tax rules for EU undecided", "Refund policy not signed off"],
       "external_vendor": ["Vendor sandbox returning 500s", "Third-party SLA breach under review"],
       "technical_debt": ["Legacy migration path blocks deploys", "Flaky integration suite"],

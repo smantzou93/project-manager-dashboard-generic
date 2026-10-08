@@ -17,11 +17,22 @@
       "label": "Task types",
       "terms": [
         { "slug": "phase", "label": "Phase", "color": "violet", "icon": "layers" },
-        { "slug": "task", "label": "Task", "color": "slate", "icon": "check-square", "isDefault": true },
+        {
+          "slug": "task",
+          "label": "Task",
+          "color": "slate",
+          "icon": "check-square",
+          "isDefault": true
+        },
         { "slug": "concept", "label": "Concept", "color": "pink", "icon": "palette" },
         { "slug": "site_visit", "label": "Site visit", "color": "cyan", "icon": "map-pin" },
         { "slug": "specification", "label": "Specification", "color": "blue", "icon": "file-text" },
-        { "slug": "procurement", "label": "Procurement", "color": "amber", "icon": "shopping-cart" },
+        {
+          "slug": "procurement",
+          "label": "Procurement",
+          "color": "amber",
+          "icon": "shopping-cart"
+        },
         { "slug": "install", "label": "Install", "color": "teal", "icon": "hammer" },
         { "slug": "revision", "label": "Revision", "color": "orange", "icon": "rotate-ccw" },
         { "slug": "client_review", "label": "Client review", "color": "green", "icon": "eye" }
@@ -31,11 +42,32 @@
       "key": "workflow_status",
       "label": "Workflow statuses",
       "terms": [
-        { "slug": "brief", "label": "Brief", "color": "slate", "statusCategory": "todo", "isDefault": true },
+        {
+          "slug": "brief",
+          "label": "Brief",
+          "color": "slate",
+          "statusCategory": "todo",
+          "isDefault": true
+        },
         { "slug": "concept", "label": "Concept", "color": "pink", "statusCategory": "todo" },
-        { "slug": "in_progress", "label": "In progress", "color": "blue", "statusCategory": "in_progress" },
-        { "slug": "client_review", "label": "With client", "color": "violet", "statusCategory": "in_review" },
-        { "slug": "awaiting_approval", "label": "Awaiting approval", "color": "red", "statusCategory": "blocked" },
+        {
+          "slug": "in_progress",
+          "label": "In progress",
+          "color": "blue",
+          "statusCategory": "in_progress"
+        },
+        {
+          "slug": "client_review",
+          "label": "With client",
+          "color": "violet",
+          "statusCategory": "in_review"
+        },
+        {
+          "slug": "awaiting_approval",
+          "label": "Awaiting approval",
+          "color": "red",
+          "statusCategory": "blocked"
+        },
         { "slug": "installed", "label": "Installed", "color": "green", "statusCategory": "done" },
         { "slug": "dropped", "label": "Dropped", "color": "slate", "statusCategory": "cancelled" }
       ]
@@ -106,26 +138,111 @@
     }
   ],
   "demo": {
-    "roles": ["Principal Designer", "Senior Designer", "Designer", "FF&E Specialist", "Project Coordinator", "Draughtsperson", "Procurement Lead", "Studio Manager"],
+    "roles": [
+      "Principal Designer",
+      "Senior Designer",
+      "Designer",
+      "FF&E Specialist",
+      "Project Coordinator",
+      "Draughtsperson",
+      "Procurement Lead",
+      "Studio Manager"
+    ],
     "portfolios": [
-      { "key": "RESIDENTIAL", "name": "Residential", "description": "Private homes and apartments." },
-      { "key": "HOSPITALITY", "name": "Hospitality & Workplace", "description": "Hotels, restaurants and offices." }
+      {
+        "key": "RESIDENTIAL",
+        "name": "Residential",
+        "description": "Private homes and apartments."
+      },
+      {
+        "key": "HOSPITALITY",
+        "name": "Hospitality & Workplace",
+        "description": "Hotels, restaurants and offices."
+      }
     ],
     "projects": [
-      { "key": "ELM", "name": "Elm House — Full Refurbishment", "portfolio": "RESIDENTIAL", "status": "active", "health": "on_track", "items": 95 },
-      { "key": "HARBOUR", "name": "Harbour Hotel — Lobby & Suites", "portfolio": "HOSPITALITY", "status": "active", "health": "at_risk", "items": 130 },
-      { "key": "LOFT", "name": "Warehouse Loft Conversion", "portfolio": "RESIDENTIAL", "status": "installation", "health": "at_risk", "items": 85 },
-      { "key": "BISTRO", "name": "Copper Lane Bistro", "portfolio": "HOSPITALITY", "status": "active", "health": "off_track", "items": 100 },
-      { "key": "PENTHOUSE", "name": "Riverbank Penthouse", "portfolio": "RESIDENTIAL", "status": "proposal", "health": "on_track", "items": 70 },
-      { "key": "STUDIO", "name": "Northside Co-working Studio", "portfolio": "HOSPITALITY", "status": "completed", "health": "on_track", "items": 80 }
+      {
+        "key": "ELM",
+        "name": "Elm House — Full Refurbishment",
+        "portfolio": "RESIDENTIAL",
+        "status": "active",
+        "health": "on_track",
+        "items": 95
+      },
+      {
+        "key": "HARBOUR",
+        "name": "Harbour Hotel — Lobby & Suites",
+        "portfolio": "HOSPITALITY",
+        "status": "active",
+        "health": "at_risk",
+        "items": 130
+      },
+      {
+        "key": "LOFT",
+        "name": "Warehouse Loft Conversion",
+        "portfolio": "RESIDENTIAL",
+        "status": "installation",
+        "health": "at_risk",
+        "items": 85
+      },
+      {
+        "key": "BISTRO",
+        "name": "Copper Lane Bistro",
+        "portfolio": "HOSPITALITY",
+        "status": "active",
+        "health": "off_track",
+        "items": 100
+      },
+      {
+        "key": "PENTHOUSE",
+        "name": "Riverbank Penthouse",
+        "portfolio": "RESIDENTIAL",
+        "status": "proposal",
+        "health": "on_track",
+        "items": 70
+      },
+      {
+        "key": "STUDIO",
+        "name": "Northside Co-working Studio",
+        "portfolio": "HOSPITALITY",
+        "status": "completed",
+        "health": "on_track",
+        "items": 80
+      }
     ],
-    "milestones": ["Concept signed off", "Detailed design issued", "FF&E ordered", "Install complete"],
+    "milestones": [
+      "Concept signed off",
+      "Detailed design issued",
+      "FF&E ordered",
+      "Install complete"
+    ],
     "epics": ["Concept & mood", "Detailed design", "Procurement", "Install & styling"],
-    "titleVerbs": ["Specify", "Source", "Draft", "Present", "Revise", "Measure", "Order", "Install", "Style"],
+    "titleVerbs": [
+      "Specify",
+      "Source",
+      "Draft",
+      "Present",
+      "Revise",
+      "Measure",
+      "Order",
+      "Install",
+      "Style"
+    ],
     "titleNouns": [
-      "living room joinery", "kitchen stone selection", "bedroom lighting scheme", "bathroom tiling",
-      "soft furnishings", "dining chairs", "entrance hall rug", "window treatments",
-      "wardrobe elevations", "colour palette", "artwork package", "reception desk", "bar millwork", "floor finishes"
+      "living room joinery",
+      "kitchen stone selection",
+      "bedroom lighting scheme",
+      "bathroom tiling",
+      "soft furnishings",
+      "dining chairs",
+      "entrance hall rug",
+      "window treatments",
+      "wardrobe elevations",
+      "colour palette",
+      "artwork package",
+      "reception desk",
+      "bar millwork",
+      "floor finishes"
     ],
     "impedimentTitles": {
       "client_approval": ["Client undecided on stone finish", "Scheme sign-off slipped two weeks"],
@@ -134,7 +251,10 @@
       "budget": ["FF&E budget over by 12%", "Additional works not yet approved"],
       "site_readiness": ["Plastering incomplete before install", "Electrics not first-fixed"],
       "access": ["Lift too small for oversized pieces", "No loading bay on delivery day"],
-      "measurement": ["Alcove dimensions differ from survey", "Ceiling height inconsistent across rooms"]
+      "measurement": [
+        "Alcove dimensions differ from survey",
+        "Ceiling height inconsistent across rooms"
+      ]
     }
   }
 }

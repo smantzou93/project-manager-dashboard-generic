@@ -12,7 +12,7 @@
  */
 
 import { sql } from '../client.js';
-import { baseFilter, scopeFilter, subDays, ts, type Scope } from './scope.js';
+import { baseFilter, subDays, ts, type Scope } from './scope.js';
 
 // ---------------------------------------------------------------------------
 // Cycle and lead time
@@ -204,9 +204,9 @@ export async function velocity(
     where it.end_date < ${ts(asOf)}::timestamptz::date
       and (${scope.projectId ? sql`it.project_id = ${scope.projectId}` : sql`true`})
       and (${
-        scope.portfolioId
-          ? sql`it.project_id in (select id from projects where portfolio_id = ${scope.portfolioId})`
-          : sql`true`
+        scope.portfolioId ?
+          sql`it.project_id in (select id from projects where portfolio_id = ${scope.portfolioId})`
+        : sql`true`
       })
     group by it.id, it.name, it.start_date, it.end_date, it.state, it.committed_points
     order by it.end_date desc
@@ -234,11 +234,7 @@ export type FlowDay = { day: string; category: string; count: number };
  * first transition uses that transition's `from_category`; an item that never
  * moved uses its current category for its whole life.
  */
-export async function cumulativeFlow(
-  asOf: Date,
-  scope: Scope = {},
-  days = 60,
-): Promise<FlowDay[]> {
+export async function cumulativeFlow(asOf: Date, scope: Scope = {}, days = 60): Promise<FlowDay[]> {
   const from = subDays(asOf, days);
   return sql<FlowDay[]>`
     with scoped as (
@@ -377,11 +373,7 @@ export type BurnupPoint = { day: string; completed: number; scope: number };
  * progress. A burndown that flattens looks identical whether the team stopped
  * delivering or the work grew underneath them; a burnup shows which happened.
  */
-export async function burnup(
-  asOf: Date,
-  scope: Scope = {},
-  days = 90,
-): Promise<BurnupPoint[]> {
+export async function burnup(asOf: Date, scope: Scope = {}, days = 90): Promise<BurnupPoint[]> {
   const from = subDays(asOf, days);
   return sql<BurnupPoint[]>`
     with days as (
@@ -647,10 +639,7 @@ export type DashboardSnapshot = {
  * queries. Grouped here so a view cannot accidentally compute a metric a
  * different way than the one in docs/METRICS.md.
  */
-export async function dashboardSnapshot(
-  asOf: Date,
-  scope: Scope = {},
-): Promise<DashboardSnapshot> {
+export async function dashboardSnapshot(asOf: Date, scope: Scope = {}): Promise<DashboardSnapshot> {
   const [wip, cycle, lead, tput, vel, flow, aging, burn, trig] = await Promise.all([
     wipSummary(asOf, scope),
     cycleTime(asOf, scope),

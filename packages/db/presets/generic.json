@@ -17,7 +17,13 @@
       "label": "Task types",
       "terms": [
         { "slug": "group", "label": "Group", "color": "violet", "icon": "layers" },
-        { "slug": "task", "label": "Task", "color": "slate", "icon": "check-square", "isDefault": true },
+        {
+          "slug": "task",
+          "label": "Task",
+          "color": "slate",
+          "icon": "check-square",
+          "isDefault": true
+        },
         { "slug": "issue", "label": "Issue", "color": "red", "icon": "alert-circle" },
         { "slug": "decision", "label": "Decision", "color": "blue", "icon": "git-branch" },
         { "slug": "review", "label": "Review", "color": "cyan", "icon": "eye" }
@@ -28,12 +34,28 @@
       "label": "Workflow statuses",
       "description": "Rename these to match your process; keep each pointed at a metrics bucket.",
       "terms": [
-        { "slug": "to_do", "label": "To do", "color": "slate", "statusCategory": "todo", "isDefault": true },
-        { "slug": "in_progress", "label": "In progress", "color": "blue", "statusCategory": "in_progress" },
+        {
+          "slug": "to_do",
+          "label": "To do",
+          "color": "slate",
+          "statusCategory": "todo",
+          "isDefault": true
+        },
+        {
+          "slug": "in_progress",
+          "label": "In progress",
+          "color": "blue",
+          "statusCategory": "in_progress"
+        },
         { "slug": "review", "label": "Review", "color": "violet", "statusCategory": "in_review" },
         { "slug": "blocked", "label": "Blocked", "color": "red", "statusCategory": "blocked" },
         { "slug": "done", "label": "Done", "color": "green", "statusCategory": "done" },
-        { "slug": "cancelled", "label": "Cancelled", "color": "slate", "statusCategory": "cancelled" }
+        {
+          "slug": "cancelled",
+          "label": "Cancelled",
+          "color": "slate",
+          "statusCategory": "cancelled"
+        }
       ]
     },
     {
@@ -101,24 +123,79 @@
     }
   ],
   "demo": {
-    "roles": ["Project Manager", "Lead", "Contributor", "Reviewer", "Coordinator", "Specialist", "Analyst", "Sponsor"],
+    "roles": [
+      "Project Manager",
+      "Lead",
+      "Contributor",
+      "Reviewer",
+      "Coordinator",
+      "Specialist",
+      "Analyst",
+      "Sponsor"
+    ],
     "portfolios": [
       { "key": "PORTFOLIO-A", "name": "Portfolio A", "description": "First group of projects." },
       { "key": "PORTFOLIO-B", "name": "Portfolio B", "description": "Second group of projects." }
     ],
     "projects": [
-      { "key": "ALPHA", "name": "Project Alpha", "portfolio": "PORTFOLIO-A", "status": "active", "health": "on_track", "items": 110 },
-      { "key": "BETA", "name": "Project Beta", "portfolio": "PORTFOLIO-A", "status": "active", "health": "at_risk", "items": 95 },
-      { "key": "GAMMA", "name": "Project Gamma", "portfolio": "PORTFOLIO-B", "status": "active", "health": "off_track", "items": 120 },
-      { "key": "DELTA", "name": "Project Delta", "portfolio": "PORTFOLIO-B", "status": "completed", "health": "on_track", "items": 75 }
+      {
+        "key": "ALPHA",
+        "name": "Project Alpha",
+        "portfolio": "PORTFOLIO-A",
+        "status": "active",
+        "health": "on_track",
+        "items": 110
+      },
+      {
+        "key": "BETA",
+        "name": "Project Beta",
+        "portfolio": "PORTFOLIO-A",
+        "status": "active",
+        "health": "at_risk",
+        "items": 95
+      },
+      {
+        "key": "GAMMA",
+        "name": "Project Gamma",
+        "portfolio": "PORTFOLIO-B",
+        "status": "active",
+        "health": "off_track",
+        "items": 120
+      },
+      {
+        "key": "DELTA",
+        "name": "Project Delta",
+        "portfolio": "PORTFOLIO-B",
+        "status": "completed",
+        "health": "on_track",
+        "items": 75
+      }
     ],
     "milestones": ["Kick-off", "First deliverable", "Second deliverable", "Close-out"],
     "epics": ["Setup", "Core work", "Dependencies", "Wrap-up"],
-    "titleVerbs": ["Prepare", "Review", "Complete", "Update", "Coordinate", "Approve", "Deliver", "Assess"],
+    "titleVerbs": [
+      "Prepare",
+      "Review",
+      "Complete",
+      "Update",
+      "Coordinate",
+      "Approve",
+      "Deliver",
+      "Assess"
+    ],
     "titleNouns": [
-      "scope document", "stakeholder update", "budget forecast", "risk register", "resource plan",
-      "status report", "quality check", "handover pack", "schedule revision", "vendor brief",
-      "requirements list", "sign-off package"
+      "scope document",
+      "stakeholder update",
+      "budget forecast",
+      "risk register",
+      "resource plan",
+      "status report",
+      "quality check",
+      "handover pack",
+      "schedule revision",
+      "vendor brief",
+      "requirements list",
+      "sign-off package"
     ],
     "impedimentTitles": {
       "dependency": ["Waiting on upstream team", "Dependent task not started"],

@@ -18,12 +18,13 @@ import { FIXTURE_PRESET, PINNED_NOW, PINNED_NOW_ISO } from '../fixtures.js';
 
 const SEED_CMD = `./scripts/dev.sh --pinned --preset ${FIXTURE_PRESET} --seed-only`;
 
-function fail(problem: string): never {
+function fail(problem: string, cause?: unknown): never {
   throw new Error(
     `\n\nIntegration fixture is not ready: ${problem}\n\n` +
       `  Fix with:  ${SEED_CMD}\n\n` +
       `These tests assert exact metric values, which only hold for the\n` +
       `'${FIXTURE_PRESET}' preset seeded with the clock pinned to ${PINNED_NOW_ISO}.\n`,
+    cause === undefined ? undefined : { cause },
   );
 }
 
@@ -53,9 +54,12 @@ export async function setup() {
           `  Postgres only reads POSTGRES_PASSWORD at initdb, so the existing\n` +
           `  volume still expects the old one.\n\n` +
           `  Fix with:  ./scripts/db-reset.sh --yes --volume\n`,
+        // Keep the driver error reachable: the guidance above is a guess from a
+        // message match, and if the guess is wrong the original is what helps.
+        { cause: error },
       );
     }
-    fail(`cannot query the database (${msg})`);
+    fail(`cannot query the database (${msg})`, error);
   }
 
   const get = (k: string) => settings.find((s) => s.key === k)?.value;

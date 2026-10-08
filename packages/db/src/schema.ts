@@ -207,14 +207,11 @@ export const taxonomyTerms = pgTable(
  * Keeping these as data is what makes one codebase readable to a software team
  * and a construction team without forking it.
  */
-export const appSettings = pgTable(
-  'app_settings',
-  {
-    key: text('key').primaryKey(),
-    value: jsonb('value').$type<unknown>().notNull(),
-    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
-  },
-);
+export const appSettings = pgTable('app_settings', {
+  key: text('key').primaryKey(),
+  value: jsonb('value').$type<unknown>().notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+});
 
 // ---------------------------------------------------------------------------
 // People
@@ -703,12 +700,7 @@ export const metricSnapshots = pgTable(
     computedAt: timestamp('computed_at', { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [
-    uniqueIndex('metric_snapshots_unique_idx').on(
-      t.projectId,
-      t.metricKey,
-      t.grain,
-      t.periodStart,
-    ),
+    uniqueIndex('metric_snapshots_unique_idx').on(t.projectId, t.metricKey, t.grain, t.periodStart),
     index('metric_snapshots_lookup_idx').on(t.metricKey, t.periodStart),
   ],
 );

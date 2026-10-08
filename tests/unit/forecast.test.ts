@@ -77,9 +77,7 @@ describe('forecastFromBurnup', () => {
   it('never projects a date in the past', () => {
     const f = forecastFromBurnup(linearBurnup(31, 2, 100));
     if (!f.ok) throw new Error('expected a forecast');
-    expect(new Date(f.completionDate).getTime()).toBeGreaterThan(
-      new Date('2026-07-31').getTime(),
-    );
+    expect(new Date(f.completionDate).getTime()).toBeGreaterThan(new Date('2026-07-31').getTime());
     expect(f.daysRemaining).toBeGreaterThan(0);
   });
 });

@@ -138,9 +138,8 @@ export function riskScore(input: {
  */
 export async function projectSummaries(asOf: Date, scope: Scope = {}): Promise<ProjectSummary[]> {
   const projects = await listProjects();
-  const filtered = scope.portfolioId
-    ? projects.filter((p) => p.portfolioId === scope.portfolioId)
-    : projects;
+  const filtered =
+    scope.portfolioId ? projects.filter((p) => p.portfolioId === scope.portfolioId) : projects;
 
   const counts = await sql<
     {
@@ -241,10 +240,7 @@ export type MilestoneRow = {
   done: number;
 };
 
-export async function projectMilestones(
-  asOf: Date,
-  projectId: string,
-): Promise<MilestoneRow[]> {
+export async function projectMilestones(asOf: Date, projectId: string): Promise<MilestoneRow[]> {
   return sql<MilestoneRow[]>`
     select m.id, m.name, m.due_date as "dueDate", m.completed_at as "completedAt",
            count(wi.id)::int as "total",
@@ -269,10 +265,7 @@ export type ImpedimentRow = {
   ageDays: number;
 };
 
-export async function openImpediments(
-  asOf: Date,
-  scope: Scope = {},
-): Promise<ImpedimentRow[]> {
+export async function openImpediments(asOf: Date, scope: Scope = {}): Promise<ImpedimentRow[]> {
   return sql<ImpedimentRow[]>`
     select i.id, i.title,
            kt.label as "kind",

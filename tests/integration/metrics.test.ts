@@ -21,7 +21,9 @@ const asOf = PINNED_NOW;
 
 describe('fixture shape', () => {
   it('holds the expected row counts', async () => {
-    const [row] = await sql<[{ leaf: number; group: number; tr: number; imp: number; proj: number }]>`
+    const [row] = await sql<
+      [{ leaf: number; group: number; tr: number; imp: number; proj: number }]
+    >`
       select
         (select count(*) from work_items where not ('group' = any(labels)))::int as "leaf",
         (select count(*) from work_items where      ('group' = any(labels)))::int as "group",

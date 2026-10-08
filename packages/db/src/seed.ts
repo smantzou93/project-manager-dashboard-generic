@@ -108,10 +108,28 @@ const HISTORY_DAYS = 180;
 const EPOCH = addDays(NOW, -HISTORY_DAYS);
 
 const FIRST_NAMES = [
-  'Ada', 'Mateo', 'Priya', 'Jonas', 'Wen', 'Sofia', 'Kwame', 'Hannah', 'Dmitri', 'Leila',
+  'Ada',
+  'Mateo',
+  'Priya',
+  'Jonas',
+  'Wen',
+  'Sofia',
+  'Kwame',
+  'Hannah',
+  'Dmitri',
+  'Leila',
 ];
 const LAST_NAMES = [
-  'Okafor', 'Rivera', 'Raman', 'Lindqvist', 'Zhao', 'Marchetti', 'Asante', 'Boyle', 'Volkov', 'Haddad',
+  'Okafor',
+  'Rivera',
+  'Raman',
+  'Lindqvist',
+  'Zhao',
+  'Marchetti',
+  'Asante',
+  'Boyle',
+  'Volkov',
+  'Haddad',
 ];
 
 // ---------------------------------------------------------------------------
@@ -227,10 +245,16 @@ async function seed(preset: Preset) {
   const epicNames = demo.epics ?? ['Phase one', 'Phase two'];
   const impedimentTitles = demo.impedimentTitles ?? {};
   const portfolioSpecs = demo.portfolios ?? [{ key: 'MAIN', name: 'Main portfolio' }];
-  const projectSpecs =
-    demo.projects ?? [
-      { key: 'DEMO', name: 'Demo project', portfolio: portfolioSpecs[0]!.key, status: 'active', health: 'on_track', items: 100 },
-    ];
+  const projectSpecs = demo.projects ?? [
+    {
+      key: 'DEMO',
+      name: 'Demo project',
+      portfolio: portfolioSpecs[0]!.key,
+      status: 'active',
+      health: 'on_track',
+      items: 100,
+    },
+  ];
 
   // --- people --------------------------------------------------------------
   const insertedPeople = await db
@@ -253,7 +277,9 @@ async function seed(preset: Preset) {
   // --- portfolios ----------------------------------------------------------
   const insertedPortfolios = await db
     .insert(s.portfolios)
-    .values(portfolioSpecs.map((p) => ({ key: p.key, name: p.name, description: p.description ?? null })))
+    .values(
+      portfolioSpecs.map((p) => ({ key: p.key, name: p.name, description: p.description ?? null })),
+    )
     .returning();
   const portfolioByKey = new Map(insertedPortfolios.map((p) => [p.key, p]));
 
@@ -291,6 +317,12 @@ async function seed(preset: Preset) {
       })
       .returning();
 
+    // `returning()` is typed as an array, so under noUncheckedIndexedAccess the
+    // destructured row is possibly-undefined. A single-row insert that returns
+    // nothing means the insert silently did not happen, which would otherwise
+    // surface a hundred lines later as a null project_id.
+    if (!project) throw new Error(`failed to insert project ${spec.key}`);
+
     // --- milestones --------------------------------------------------------
     const insertedMilestones = await db
       .insert(s.milestones)
@@ -322,7 +354,10 @@ async function seed(preset: Preset) {
         Array.from({ length: 12 }, (_, i) => {
           const start = addDays(projectStart, i * 14);
           const end = addDays(start, 13);
-          const state = end < NOW ? ('closed' as const) : start <= NOW ? ('active' as const) : ('future' as const);
+          const state =
+            end < NOW ? ('closed' as const)
+            : start <= NOW ? ('active' as const)
+            : ('future' as const);
           return {
             projectId: project.id,
             name: `${spec.key} ${iterationLabel} ${i + 1}`,
@@ -358,7 +393,9 @@ async function seed(preset: Preset) {
           title: name,
           statusTermId: path[Math.min(START_INDEX < 0 ? 0 : START_INDEX, DONE_INDEX)]!.id,
           statusRaw: path[Math.min(START_INDEX < 0 ? 0 : START_INDEX, DONE_INDEX)]!.label,
-          statusCategory: START_INDEX < 0 ? 'todo' : ('in_progress' as const),
+          // Both branches need the literal type; annotating only one widens the
+          // ternary to `string` and Drizzle rejects it against the enum.
+          statusCategory: START_INDEX < 0 ? ('todo' as const) : ('in_progress' as const),
           sourceCreatedAt: projectStart,
           startedAt: projectStart,
           source: 'manual' as const,
@@ -408,7 +445,11 @@ async function seed(preset: Preset) {
         : addDays(NOW, -randInt(1, 24));
 
       const iteration = insertedIterations.find(
-        (it) => it.startDate && it.endDate && isoDate(createdAt) >= it.startDate && isoDate(createdAt) <= it.endDate,
+        (it) =>
+          it.startDate &&
+          it.endDate &&
+          isoDate(createdAt) >= it.startDate &&
+          isoDate(createdAt) <= it.endDate,
       );
 
       // Long-tail cycle times: most items are quick, a few drag for weeks.
@@ -454,7 +495,7 @@ async function seed(preset: Preset) {
       const stageTerm = path[finalIndex]!;
       // Blocked is an overlay on in-flight work, not a stage on the path.
       const blocked = !!blockedTerm && finalIndex > 0 && finalIndex < DONE_INDEX && chance(0.12);
-      const shownTerm = blocked ? blockedTerm! : stageTerm;
+      const shownTerm = blocked ? blockedTerm : stageTerm;
       // Moving into the blocked column is itself a transition, and it has to be
       // recorded. Without it the item reads "On hold" while its history stops at
       // "In progress", so the cumulative flow diagram -- which is built from
@@ -462,7 +503,9 @@ async function seed(preset: Preset) {
       // work_items. Two numbers on one dashboard that contradict each other.
       const blockedAt =
         blocked ?
-          new Date(Math.min(NOW.getTime(), stageTimes[finalIndex]!.getTime() + randInt(1, 72) * 3_600_000))
+          new Date(
+            Math.min(NOW.getTime(), stageTimes[finalIndex]!.getTime() + randInt(1, 72) * 3_600_000),
+          )
         : null;
       const externalId = `item-${spec.key.toLowerCase()}-${i + 1}`;
 
@@ -561,7 +604,10 @@ async function seed(preset: Preset) {
     totalTransitions += transitionValues.length;
 
     // --- impediments -------------------------------------------------------
-    const impedimentCount = spec.health === 'off_track' ? 8 : spec.health === 'at_risk' ? 5 : 2;
+    const impedimentCount =
+      spec.health === 'off_track' ? 8
+      : spec.health === 'at_risk' ? 5
+      : 2;
     const impedimentValues = Array.from({ length: impedimentCount }, (_, i) => {
       const category = pick(categoryTerms);
       const openedAt = addDays(NOW, -randInt(1, 70));

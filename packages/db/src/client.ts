@@ -69,6 +69,14 @@ function connection(): CachedConnection {
  * Drizzle handle. Prefer this over raw SQL for anything the query builder
  * covers. Proxied so the connection opens on first property access.
  */
+/*
+ * `Reflect.get` and `Reflect.apply` are typed `any` by definition -- a proxy
+ * trap cannot know the shape of what it forwards. The exported constants are
+ * typed via the Proxy target, so callers still get full type information; the
+ * `any` exists only inside these four lines. Disabled narrowly rather than
+ * repository-wide, which is the point of doing it here.
+ */
+/* eslint-disable @typescript-eslint/no-unsafe-return */
 export const db = new Proxy({} as CachedConnection['db'], {
   get: (_t, prop, receiver) => Reflect.get(connection().db, prop, receiver),
   has: (_t, prop) => prop in connection().db,
@@ -77,8 +85,12 @@ export const db = new Proxy({} as CachedConnection['db'], {
 /**
  * Raw postgres.js tag, for the window-function heavy metric queries.
  *
- * Needs both traps: `sql\`select 1\`` hits `apply`, while `sql.end()` and
+ * Needs both traps: a tagged template hits `apply`, while `sql.end()` and
  * `sql.unsafe()` hit `get`.
+ *
+ * Note for callers: pass dates through `ts()` from queries/scope.ts, not as
+ * bare Date objects. `drizzle()` mutates this instance's type serializers, so
+ * raw Date binding throws. The helper's docstring has the detail.
  */
 export const sql = new Proxy((() => {}) as unknown as CachedConnection['sql'], {
   apply: (_t, thisArg, args: Parameters<CachedConnection['sql']>) =>
@@ -86,6 +98,7 @@ export const sql = new Proxy((() => {}) as unknown as CachedConnection['sql'], {
   get: (_t, prop, receiver) => Reflect.get(connection().sql, prop, receiver),
   has: (_t, prop) => prop in connection().sql,
 });
+/* eslint-enable @typescript-eslint/no-unsafe-return */
 
 /** True once a connection has actually been opened. Lets teardown skip a no-op. */
 export const isConnected = () => globalForDb.__pmdash !== undefined;

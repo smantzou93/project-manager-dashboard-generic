@@ -17,11 +17,11 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
       POSTGRES_DB: ${POSTGRES_DB:-pmdash}
       # Deterministic collation keeps ORDER BY identical across machines.
-      POSTGRES_INITDB_ARGS: "--locale=C --encoding=UTF8"
+      POSTGRES_INITDB_ARGS: '--locale=C --encoding=UTF8'
     ports:
       # Bound to loopback only. Without the 127.0.0.1 prefix Docker would
       # publish this on every interface, exposing the database to the network.
-      - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
+      - '127.0.0.1:${POSTGRES_PORT:-5432}:5432'
     volumes:
       - pgdata:/var/lib/postgresql/data
       # Anything in here runs once, on first init of an empty volume.
@@ -29,7 +29,11 @@ services:
     healthcheck:
       # `pg_isready` alone returns true while the init scripts are still
       # running, so the real query is what other services should wait on.
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-pmdash} -d ${POSTGRES_DB:-pmdash} -q && psql -U ${POSTGRES_USER:-pmdash} -d ${POSTGRES_DB:-pmdash} -c 'select 1' >/dev/null"]
+      test:
+        [
+          'CMD-SHELL',
+          "pg_isready -U ${POSTGRES_USER:-pmdash} -d ${POSTGRES_DB:-pmdash} -q && psql -U ${POSTGRES_USER:-pmdash} -d ${POSTGRES_DB:-pmdash} -c 'select 1' >/dev/null",
+        ]
       interval: 5s
       timeout: 5s
       retries: 20

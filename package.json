@@ -4,6 +4,7 @@
   "private": true,
   "description": "Cloneable, agent-editable project management dashboard: Next.js + Drizzle/Postgres + Python ingestion",
   "license": "MIT",
+  "type": "module",
   "workspaces": [
     "apps/web",
     "packages/*"
@@ -24,8 +25,21 @@
     "db:studio": "npm run --workspace @pmdash/db studio",
     "web": "npm run --workspace @pmdash/web dev",
     "build": "npm run --workspace @pmdash/web build",
-    "lint": "npm run --workspace @pmdash/web lint",
-    "typecheck": "tsc -b --pretty false || true"
+    "//gates": "These four are what pre-commit and CI both run. Keep them fast and keep them honest -- an earlier typecheck script ended in `|| true`, which made it report success on every error.",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "typecheck": "tsc -p tsconfig.json --pretty false",
+    "//tests": "`test` is the fast pure suite. `test:integration` needs Postgres and the pinned fixture; `test:visual` additionally needs the web app and a browser.",
+    "test": "vitest run --project unit",
+    "test:watch": "vitest --project unit",
+    "test:integration": "vitest run --project integration",
+    "test:all": "vitest run",
+    "test:visual": "playwright test",
+    "test:visual:update": "playwright test --update-snapshots",
+    "screenshots": "./scripts/screenshots.sh",
+    "hooks:install": "git config core.hooksPath .githooks && echo 'git hooks enabled (.githooks)'"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

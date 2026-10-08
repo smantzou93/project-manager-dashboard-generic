@@ -28,6 +28,18 @@ import {
   type statusCategoryEnum,
 } from './schema.js';
 
+/**
+ * The Drizzle handle these functions accept.
+ *
+ * Typed as the real client rather than `any`. The `any` version compiled, but
+ * it erased every call in this file: `db.insert(...).values(...)` was unchecked
+ * all the way down, so a wrong column name or a mistyped enum value would have
+ * reached Postgres instead of failing at the keyboard. Taking the type from the
+ * client keeps the seed and the preset CLI able to pass the same handle while
+ * actually checking the queries.
+ */
+type Db = typeof import('./client.js').db;
+
 type StatusCategory = (typeof statusCategoryEnum.enumValues)[number];
 
 export type PresetTerm = {
@@ -81,7 +93,10 @@ const PRESET_DIR = new URL('../presets/', import.meta.url);
 
 export async function listPresets(): Promise<string[]> {
   const files = await readdir(PRESET_DIR);
-  return files.filter((f) => f.endsWith('.json')).map((f) => f.replace(/\.json$/, '')).sort();
+  return files
+    .filter((f) => f.endsWith('.json'))
+    .map((f) => f.replace(/\.json$/, ''))
+    .sort();
 }
 
 export async function loadPreset(name: string): Promise<Preset> {
@@ -144,13 +159,6 @@ export function validatePreset(preset: Preset, name: string): void {
   }
 }
 
-type DbLike = {
-  insert: (table: never) => never;
-  select: (fields?: never) => never;
-  update: (table: never) => never;
-  // Kept loose: this runs against both the seed script's handle and the app's.
-} & Record<string, unknown>;
-
 /**
  * Writes a preset into the database.
  *
@@ -159,8 +167,7 @@ type DbLike = {
  * installation refreshes the vocabulary without destroying data.
  */
 export async function applyPreset(
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  db: any,
+  db: Db,
   preset: Preset,
   options: { setActive?: boolean } = {},
 ): Promise<{ taxonomies: number; terms: number }> {
@@ -168,8 +175,7 @@ export async function applyPreset(
   let termCount = 0;
 
   for (const [index, tax] of preset.taxonomies.entries()) {
-    const isSystem =
-      tax.isSystem ?? (SYSTEM_TAXONOMY_KEYS as readonly string[]).includes(tax.key);
+    const isSystem = tax.isSystem ?? (SYSTEM_TAXONOMY_KEYS as readonly string[]).includes(tax.key);
 
     const [taxRow] = await db
       .insert(taxonomies)
@@ -191,6 +197,11 @@ export async function applyPreset(
         },
       })
       .returning();
+    // An upsert that returns no row means neither the insert nor the update
+    // took effect, so every term below would be orphaned with a null
+    // taxonomy_id. Previously invisible: `db` was typed `any`, so this whole
+    // block went unchecked.
+    if (!taxRow) throw new Error(`failed to upsert taxonomy "${tax.key}"`);
     taxCount++;
 
     for (const [termIndex, term] of tax.terms.entries()) {
@@ -235,8 +246,7 @@ export async function applyPreset(
   return { taxonomies: taxCount, terms: termCount };
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export async function setSetting(db: any, key: string, value: unknown): Promise<void> {
+export async function setSetting(db: Db, key: string, value: unknown): Promise<void> {
   await db
     .insert(appSettings)
     .values({ key, value })
@@ -246,8 +256,7 @@ export async function setSetting(db: any, key: string, value: unknown): Promise<
     });
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export async function getSetting<T>(db: any, key: string): Promise<T | null> {
+export async function getSetting<T>(db: Db, key: string): Promise<T | null> {
   const rows = await db.select().from(appSettings).where(eq(appSettings.key, key)).limit(1);
   return (rows[0]?.value as T) ?? null;
 }
@@ -256,8 +265,7 @@ export async function getSetting<T>(db: any, key: string): Promise<T | null> {
  * Resolves a taxonomy's terms into a slug -> id map, for bulk inserts that need
  * to turn human-readable slugs into foreign keys.
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export async function termMap(db: any, taxonomyKey: string): Promise<Map<string, string>> {
+export async function termMap(db: Db, taxonomyKey: string): Promise<Map<string, string>> {
   const rows = await db
     .select({ slug: taxonomyTerms.slug, id: taxonomyTerms.id })
     .from(taxonomyTerms)
