@@ -31,7 +31,7 @@ import { eq, sql as drizzleSql } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 
-import { applyPreset, loadPreset, type Preset } from './presets.js';
+import { applyPreset, loadPreset, setSetting, type Preset } from './presets.js';
 import * as s from './schema.js';
 
 loadEnv({ path: new URL('../../../.env', import.meta.url).pathname });
@@ -83,8 +83,27 @@ const addDays = (d: Date, n: number) => new Date(d.getTime() + n * DAY_MS);
 const addHours = (d: Date, n: number) => new Date(d.getTime() + n * 3_600_000);
 const isoDate = (d: Date) => d.toISOString().slice(0, 10);
 
-/** Everything is relative to "now" so the data never looks stale. */
-const NOW = new Date();
+/**
+ * Everything is relative to "now" so the data never looks stale.
+ *
+ * PMDASH_SEED_NOW pins that reference point to a fixed instant. The RNG is
+ * already seeded, but without pinning the clock the *dates* still move: seed
+ * today and every age, week bucket and burndown slope differs from yesterday's
+ * run. That makes visual regression testing impossible -- every screenshot
+ * would differ on every run whether or not any code changed. The visual test
+ * suite sets this; normal development leaves it unset and gets fresh-looking
+ * data.
+ */
+const NOW = (() => {
+  const pinned = process.env.PMDASH_SEED_NOW;
+  if (!pinned) return new Date();
+  const d = new Date(pinned);
+  if (Number.isNaN(d.getTime())) {
+    console.error(`PMDASH_SEED_NOW is not a parseable date: ${pinned}`);
+    process.exit(1);
+  }
+  return d;
+})();
 const HISTORY_DAYS = 180;
 const EPOCH = addDays(NOW, -HISTORY_DAYS);
 
@@ -366,7 +385,28 @@ async function seed(preset: Preset) {
     }[] = [];
 
     for (let i = 0; i < spec.items; i++) {
-      const createdAt = addDays(EPOCH, randInt(0, HISTORY_DAYS - 3));
+      // Decide the outcome before the date, because the two are correlated in
+      // real projects and independent draws produce a caricature.
+      //
+      // Drawing createdAt uniformly across 180 days and *then* deciding that a
+      // third of items never finish leaves a third of six months of work still
+      // in progress -- a demo where 180 items are in flight, most of them
+      // several months old. No real project looks like that: old work either
+      // ships or gets abandoned, so in-flight work is overwhelmingly recent.
+      // It also made the aging-WIP trigger fire on 85% of the board, which is
+      // noise rather than signal.
+      //
+      // So unfinished items are drawn from the recent past instead, with a
+      // deliberate thin tail of genuinely stalled work for the trigger to find.
+      const roll = rng();
+      const willFinish = roll < 0.66;
+      const stalled = !willFinish && chance(0.08);
+
+      const createdAt =
+        willFinish ? addDays(EPOCH, randInt(0, HISTORY_DAYS - 3))
+        : stalled ? addDays(EPOCH, randInt(0, HISTORY_DAYS - 40))
+        : addDays(NOW, -randInt(1, 24));
+
       const iteration = insertedIterations.find(
         (it) => it.startDate && it.endDate && isoDate(createdAt) >= it.startDate && isoDate(createdAt) <= it.endDate,
       );
@@ -391,8 +431,8 @@ async function seed(preset: Preset) {
       }
 
       // How far it would have got, weighted so most history is done with a
-      // realistic tail of live work in each column.
-      const roll = rng();
+      // realistic tail of live work in each column. `roll` was drawn above,
+      // where it also chose the creation date.
       let finalIndex =
         roll < 0.66 ? DONE_INDEX
         : roll < 0.78 ? DONE_INDEX - 1
@@ -568,11 +608,33 @@ async function seed(preset: Preset) {
     `seeded "${preset.key}": ${projectSpecs.length} projects, ${totalItems} items, ` +
       `${totalTransitions} transitions, ${totalImpediments} impediments`,
   );
+  // State the clock explicitly: a pinned run and a live run produce different
+  // data, and that difference is invisible in the counts above.
+  console.log(
+    process.env.PMDASH_SEED_NOW ?
+      `clock: PINNED at ${NOW.toISOString()} (reproducible; used by visual tests)`
+    : `clock: live (${NOW.toISOString()}) -- set PMDASH_SEED_NOW to reproduce exactly`,
+  );
+}
+
+/**
+ * Records how this database was generated.
+ *
+ * The integration and visual suites assert against exact numbers, which are
+ * only valid for a specific preset seeded at a specific instant. Writing both
+ * down lets those suites fail with "reseed with this command" instead of a wall
+ * of off-by-a-few assertion diffs that look like a code regression.
+ */
+async function recordSeedProvenance(preset: Preset) {
+  await setSetting(db, 'seed_clock', NOW.toISOString());
+  await setSetting(db, 'seed_clock_pinned', Boolean(process.env.PMDASH_SEED_NOW));
+  await setSetting(db, 'seed_preset', preset.key);
 }
 
 try {
   const preset = await loadPreset(presetName);
   await seed(preset);
+  await recordSeedProvenance(preset);
   await client.end();
   process.exit(0);
 } catch (error) {

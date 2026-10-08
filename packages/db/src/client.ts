@@ -46,13 +46,48 @@ function createConnection(): CachedConnection {
   return { sql, db: drizzle(sql, { schema }) };
 }
 
-const connection = globalForDb.__pmdash ?? createConnection();
-if (process.env.NODE_ENV !== 'production') globalForDb.__pmdash = connection;
+/**
+ * Resolved on first use, never at import time.
+ *
+ * Connecting eagerly at module scope meant that importing *anything* from this
+ * package -- including pure functions like `riskScore` and `forecastFromBurnup`
+ * that never touch Postgres -- threw unless DATABASE_URL was set. That broke
+ * unit tests, and would equally break any build-time or static context that
+ * imports a type or a helper from here.
+ */
+function connection(): CachedConnection {
+  const existing = globalForDb.__pmdash;
+  if (existing) return existing;
+  const created = createConnection();
+  // Cache in every environment: the comment above about hot reload applies in
+  // development, and in production one pool per process is simply correct.
+  globalForDb.__pmdash = created;
+  return created;
+}
 
-/** Drizzle handle. Prefer this over raw SQL for anything the query builder covers. */
-export const db = connection.db;
+/**
+ * Drizzle handle. Prefer this over raw SQL for anything the query builder
+ * covers. Proxied so the connection opens on first property access.
+ */
+export const db = new Proxy({} as CachedConnection['db'], {
+  get: (_t, prop, receiver) => Reflect.get(connection().db, prop, receiver),
+  has: (_t, prop) => prop in connection().db,
+});
 
-/** Raw postgres.js tag, for the window-function heavy metric queries. */
-export const sql = connection.sql;
+/**
+ * Raw postgres.js tag, for the window-function heavy metric queries.
+ *
+ * Needs both traps: `sql\`select 1\`` hits `apply`, while `sql.end()` and
+ * `sql.unsafe()` hit `get`.
+ */
+export const sql = new Proxy((() => {}) as unknown as CachedConnection['sql'], {
+  apply: (_t, thisArg, args: Parameters<CachedConnection['sql']>) =>
+    Reflect.apply(connection().sql, thisArg, args),
+  get: (_t, prop, receiver) => Reflect.get(connection().sql, prop, receiver),
+  has: (_t, prop) => prop in connection().sql,
+});
+
+/** True once a connection has actually been opened. Lets teardown skip a no-op. */
+export const isConnected = () => globalForDb.__pmdash !== undefined;
 
 export { schema };

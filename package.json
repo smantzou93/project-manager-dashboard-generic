@@ -26,5 +26,13 @@
     "build": "npm run --workspace @pmdash/web build",
     "lint": "npm run --workspace @pmdash/web lint",
     "typecheck": "tsc -b --pretty false || true"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.12.0",
+    "eslint-config-prettier": "^10.1.8",
+    "prettier": "^3.9.9",
+    "typescript-eslint": "^8.71.1",
+    "vitest": "^5.0.3"
   }
 }
