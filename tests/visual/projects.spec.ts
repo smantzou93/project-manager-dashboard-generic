@@ -51,20 +51,19 @@ test.describe('single project view', () => {
     await expect(page.locator('.tile', { hasText: 'In flight' })).toBeVisible();
   });
 
-  test('404s on an unknown key', async ({ page }) => {
-    // Status only, deliberately.
+  test('404s on an unknown key, and renders the page', async ({ page }) => {
+    // Both halves matter and they fail independently. The status is what a
+    // crawler, a monitor and a fetch() key off; the body is what a person
+    // sees.
     //
-    // No 404 body renders at all under Next 16.4 / React 19.3 -- not a custom
-    // not-found page and not Next's built-in one. The markup is emitted into a
-    // hidden <template data-next-error-message="NEXT_HTTP_ERROR_FALLBACK;404">
-    // and never commits to the DOM (issue #44, almost certainly the same
-    // boundary bug as #39).
-    //
-    // The status code is the contract that actually matters here -- a crawler,
-    // a monitor and a fetch() all key off it -- and it is correct. Asserting
-    // body text would be asserting a framework bug.
+    // The body is NOT in the server-rendered HTML -- it streams into the
+    // flight payload and commits on the client. Checking this with curl will
+    // suggest it is broken, which is exactly the wrong conclusion drawn once
+    // before (issue #44). It only renders when hydration works, so this also
+    // guards the allowedDevOrigins setting that silently disables it.
     const res = await page.goto('/projects/DOES-NOT-EXIST');
     expect(res?.status()).toBe(404);
+    await expect(page.getByRole('heading', { name: 'Not found' })).toBeVisible();
   });
 
   test('visual', async ({ page }) => {
