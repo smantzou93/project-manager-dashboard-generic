@@ -8,7 +8,7 @@ loadRootEnv();
 export default {
   // The db package ships TypeScript source rather than a build step, so Next
   // has to compile it alongside the app.
-  transpilePackages: ['@pmdash/db'],
+  transpilePackages: ['@pmdash/db', '@pmdash/logger'],
   // Caching is handled by `export const dynamic = 'force-dynamic'` in the root
   // layout rather than here: a stale metric is worse than a slow one when
   // someone is deciding what to escalate.

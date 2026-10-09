@@ -34,6 +34,7 @@ import {
   TriggerList,
 } from '../../../components/ui';
 import { fmtDate, fmtDays, getViewContext, plural } from '../../../lib/view-context';
+import { withRequest } from '../../../lib/request';
 
 // Metrics must never come from a cache: a stale number is worse than a slow one
 // when someone is deciding what to escalate. Declared per page rather than on
@@ -49,18 +50,22 @@ export default async function ProjectPage({ params }: { params: Promise<{ key: s
   if (!project) notFound();
 
   const scope = { projectId: project.id };
-  const [wip, cycle, lead, tput, flow, aging, burn, miles, imps, fired] = await Promise.all([
-    wipSummary(asOf, scope),
-    cycleTime(asOf, scope),
-    leadTime(asOf, scope),
-    throughput(asOf, scope),
-    cumulativeFlow(asOf, scope),
-    agingWip(asOf, scope),
-    burnup(asOf, scope),
-    projectMilestones(asOf, project.id),
-    openImpediments(asOf, scope),
-    triggers(asOf, scope),
-  ]);
+  const [wip, cycle, lead, tput, flow, aging, burn, miles, imps, fired] = await withRequest(
+    `/projects/${key}`,
+    () =>
+      Promise.all([
+        wipSummary(asOf, scope),
+        cycleTime(asOf, scope),
+        leadTime(asOf, scope),
+        throughput(asOf, scope),
+        cumulativeFlow(asOf, scope),
+        agingWip(asOf, scope),
+        burnup(asOf, scope),
+        projectMilestones(asOf, project.id),
+        openImpediments(asOf, scope),
+        triggers(asOf, scope),
+      ]),
+  );
 
   const forecast = forecastFromBurnup(burn);
   const total = wip.done + wip.inFlight + wip.todo + wip.blocked;

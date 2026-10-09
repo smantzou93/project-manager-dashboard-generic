@@ -13,6 +13,10 @@ concurrency:
 
 env:
   NODE_VERSION: '24'
+  # Structured logs go to stdout as well as to logs/, so a failing CI job
+  # carries its own trace in the run output.
+  LOG_LEVEL: info
+  PMD_LOG_TO_FILE: '0'
 
 jobs:
   # ---------------------------------------------------------------------------

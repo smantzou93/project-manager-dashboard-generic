@@ -131,9 +131,23 @@ Everything slow — Postgres, the browser, the screenshots — runs in CI, where
 can take the time it needs. [`docs/TESTING.md`](docs/TESTING.md) explains the
 split, and why the fixture's clock is pinned.
 
+### When something breaks
+
+Every response carries an `x-correlation-id` header, and every log line in
+every tier carries the same field. One id reconstructs the whole operation —
+the page render, each query it ran, and any import it triggered:
+
+```bash
+jq -s 'map(select(.correlation_id=="a1b2c3")) | sort_by(.ts)' logs/*.log
+```
+
+Secrets are redacted at the serialiser rather than at each call site, because
+per-call-site redaction works right up until somebody forgets.
+
 - [`AGENTS.md`](AGENTS.md) — the single source of truth for agents
-- [`docs/TRIAGE.md`](docs/TRIAGE.md) — symptom-to-cause table when something breaks
+- [`docs/TRIAGE.md`](docs/TRIAGE.md) — symptom-to-cause table, integrity queries, useful one-liners
 - [`docs/TESTING.md`](docs/TESTING.md) — the suites and the pinned clock
+- [`docs/INGESTION.md`](docs/INGESTION.md) — CSV import and the connector contract
 - [Issues and milestones](https://github.com/smantzou93/project-manager-dashboard-generic/issues)
 
 ## A note on secrets

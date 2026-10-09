@@ -12,6 +12,7 @@ import { projectSummaries, triggers, wipSummary } from '@pmdash/db/queries';
 
 import { HealthBadge, Panel, Progress, RiskBar, Tile, TriggerList } from '../components/ui';
 import { fmtDate, getViewContext, plural } from '../lib/view-context';
+import { withRequest } from '../lib/request';
 
 // Metrics must never come from a cache: a stale number is worse than a slow one
 // when someone is deciding what to escalate. Declared per page rather than on
@@ -21,11 +22,9 @@ export const dynamic = 'force-dynamic';
 
 export default async function MultiProjectPage() {
   const { asOf, labels } = await getViewContext();
-  const [summaries, wip, fired] = await Promise.all([
-    projectSummaries(asOf),
-    wipSummary(asOf),
-    triggers(asOf),
-  ]);
+  const [summaries, wip, fired] = await withRequest('/', () =>
+    Promise.all([projectSummaries(asOf), wipSummary(asOf), triggers(asOf)]),
+  );
 
   const atRisk = summaries.filter((s) => s.risk >= 60).length;
   const slipping = summaries.filter((s) => (s.forecastSlipDays ?? 0) > 0).length;

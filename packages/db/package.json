@@ -19,6 +19,7 @@
     "preset": "tsx src/preset-cli.ts"
   },
   "dependencies": {
+    "@pmdash/logger": "*",
     "drizzle-orm": "^0.45.3",
     "postgres": "^3.4.9"
   },
