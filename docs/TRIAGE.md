@@ -78,6 +78,28 @@ fixture adds rows, and the integration suite will fail with changed counts.
 
 ### Application
 
+**A page renders but nothing is interactive. No error anywhere.**
+Buttons do nothing, inputs do not update, effects never run, and a screen sits
+on its loading state forever. The browser console is clean.
+
+Next 16 blocks cross-origin requests to dev resources, and treats `127.0.0.1`
+and `localhost` as _different origins_. If the app is served on one and opened
+on the other, `/_next/hmr` is blocked, the dev client never bootstraps, and
+React never mounts a renderer. The only sign is a warning on the **server**:
+
+```
+⚠ Blocked cross-origin request to Next.js dev resource /_next/hmr from "127.0.0.1"
+```
+
+→ `allowedDevOrigins` in `apps/web/next.config.mjs` already lists both. If you
+add another host, add it there. Confirm with the probe:
+`npx playwright test --grep hydrates`.
+
+Diagnosing from the browser: `window.__REACT_DEVTOOLS_GLOBAL_HOOK__.renderers.size`
+is `0` and no element has a `__react*` property. That means React never
+mounted — which is a very different problem from a component that rendered
+wrong, and worth checking first.
+
 **Pages 500 with `DATABASE_URL is not set`.**
 Next reads `.env` relative to `apps/web`; the real file is at the repository
 root. `apps/web/load-root-env.mjs` loads it, so this means that file was

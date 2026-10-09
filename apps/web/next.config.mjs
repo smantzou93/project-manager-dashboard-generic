@@ -13,6 +13,22 @@ export default {
   // layout rather than here: a stale metric is worse than a slow one when
   // someone is deciding what to escalate.
   typedRoutes: false,
+
+  /*
+   * Next 16 blocks cross-origin requests to dev resources, and treats
+   * 127.0.0.1 and localhost as different origins. The test suite and the
+   * browser pane both address the app as 127.0.0.1 while the dev server binds
+   * localhost, so /_next/hmr was blocked -- which stops the dev client
+   * bootstrapping and therefore stops React hydrating at all.
+   *
+   * The symptom is miserable to diagnose: pages render correctly, no error
+   * reaches the browser console, and every client component simply sits inert.
+   * It presents as "React is broken" rather than as a configuration warning
+   * printed on the server.
+   *
+   * Development only; it has no effect on a production build.
+   */
+  allowedDevOrigins: ['127.0.0.1', 'localhost', '[::1]'],
   // Next writes its own AGENTS.md on dev/build. Disabled because AGENTS.md is
   // this repo's single source of truth for agents (issue #35) and is written by
   // hand -- having the dev server silently overwrite it would be a bad day.

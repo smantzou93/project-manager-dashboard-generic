@@ -27,6 +27,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           <nav className="nav" aria-label="Main">
             <a href="/">{plural(labels.project)}</a>
             <a href="/dashboard">Dashboard</a>
+            <a href="/search">Search</a>
+            <a href="/settings/taxonomies">Vocabulary</a>
           </nav>
         </header>
         {children}

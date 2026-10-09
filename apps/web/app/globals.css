@@ -632,9 +632,26 @@ table.data .key-cell {
   main {
     padding: 16px;
   }
+  /*
+   * The nav outgrew the bar when Search and Vocabulary were added, and pushed
+   * the whole page sideways at phone width. Let it scroll within the bar
+   * rather than taking the document with it.
+   */
   .topbar {
     padding: 0 16px;
     gap: 12px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .topbar::-webkit-scrollbar {
+    display: none;
+  }
+  .nav {
+    flex: 0 0 auto;
+  }
+  .nav a {
+    padding: 6px 9px;
+    white-space: nowrap;
   }
   .brand small {
     display: none;
@@ -655,4 +672,129 @@ table.data .key-cell {
   .truncate {
     max-width: 18ch;
   }
+}
+
+/* --- interactive surfaces (search, admin) -------------------------------- */
+
+.field {
+  font: inherit;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  padding: 7px 10px;
+  min-width: 0;
+}
+.field:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+.field-inline {
+  padding: 3px 6px;
+  font-size: 13px;
+  width: 100%;
+  background: transparent;
+  border-color: transparent;
+}
+.field-inline:hover,
+.field-inline:focus {
+  background: var(--surface);
+  border-color: var(--border);
+}
+
+.filters {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.filters .field[type='search'] {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 15px;
+}
+
+.chips,
+.views,
+.add-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+.views {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+.add-row {
+  margin-top: 12px;
+}
+.add-row .field {
+  min-width: 180px;
+}
+
+.chip {
+  font: inherit;
+  font-size: 13px;
+  padding: 5px 11px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-dim);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.chip:hover:not(:disabled) {
+  border-color: var(--accent);
+  color: var(--text);
+}
+.chip:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.chip-on {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+.chip-count {
+  font-variant-numeric: tabular-nums;
+  font-size: 11px;
+  opacity: 0.75;
+}
+.chip-view {
+  border-style: dashed;
+}
+.chip-add {
+  color: var(--accent);
+  border-color: color-mix(in srgb, var(--accent) 40%, transparent);
+}
+.chip-danger {
+  color: var(--bad);
+  border-color: color-mix(in srgb, var(--bad) 40%, transparent);
+}
+
+.toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+  color: var(--text-dim);
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.error-card {
+  border-left: 3px solid var(--bad);
+  margin-bottom: 16px;
+}
+.error-card p {
+  margin: 6px 0;
+}
+
+.card > h2 .badge {
+  margin-left: 8px;
+  vertical-align: middle;
 }

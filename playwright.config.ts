@@ -38,7 +38,10 @@ export default defineConfig({
    * is a few hundred differing pixels. Rather than pretend otherwise, each
    * platform keeps its own set and CI (Linux) is the authoritative one.
    */
-  snapshotPathTemplate: '{testDir}/__baselines__/{platform}/{arg}{ext}',
+  // A fixed path, not {testDir}: testDir widened to ./tests when the contract
+  // suite was added, which silently moved every baseline and made the whole
+  // visual suite look like it had never been run.
+  snapshotPathTemplate: 'tests/visual/__baselines__/{platform}/{arg}{ext}',
 
   expect: {
     toHaveScreenshot: {
