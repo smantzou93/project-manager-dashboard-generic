@@ -3,7 +3,24 @@
 Importing work items from a CSV, and the contract a future connector
 implements.
 
-## The short version
+## In the browser
+
+Open **Import** in the nav, drop a CSV, and the page walks the same three
+steps the CLI does — inspect, dry run, then an explicit confirm. Nothing is
+written until the last one, and it tells you what it is about to do:
+
+> Import 142 rows into RIVER — _this writes to the database._
+
+Uploads are capped at 25MB, must be `.csv`, are written to a private temp
+directory (never inside the repository, never served, never executed), and are
+passed to the importer as an argument rather than through a shell.
+
+The web tier does not reimplement any of the import logic. It runs the same
+CLI with `--json` and relays the result, because two implementations of "what
+does this CSV mean" would drift and the one people trusted would be whichever
+they read last.
+
+## On the command line
 
 ```bash
 # What is in this file, and how would it be mapped? Writes nothing.

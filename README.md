@@ -27,6 +27,10 @@ different things across four teams.
 **A single project** — opens with a sentence answering "will this land on
 time", then the evidence behind it.
 
+**Search**, **Import** and **Vocabulary** round it out: cross-project search
+with shareable URLs, CSV import with a dry run before anything is written, and
+a screen for reshaping the vocabulary to your industry.
+
 ![A single project](docs/screenshots/project-detail.png)
 
 ## Start it

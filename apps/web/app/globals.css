@@ -798,3 +798,26 @@ table.data .key-cell {
   margin-left: 8px;
   vertical-align: middle;
 }
+
+/* --- upload --------------------------------------------------------------- */
+
+.dropzone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 36px 16px;
+  margin-bottom: 16px;
+  border: 2px dashed var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  text-align: center;
+}
+.dropzone-over {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 6%, var(--surface));
+}
+.dropzone strong {
+  font-size: 15px;
+}

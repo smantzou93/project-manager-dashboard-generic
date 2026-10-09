@@ -28,6 +28,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             <a href="/">{plural(labels.project)}</a>
             <a href="/dashboard">Dashboard</a>
             <a href="/search">Search</a>
+            <a href="/import">Import</a>
             <a href="/settings/taxonomies">Vocabulary</a>
           </nav>
         </header>
