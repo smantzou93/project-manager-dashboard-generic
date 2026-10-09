@@ -147,6 +147,7 @@ per-call-site redaction works right up until somebody forgets.
 - [`AGENTS.md`](AGENTS.md) — the single source of truth for agents
 - [`docs/TRIAGE.md`](docs/TRIAGE.md) — symptom-to-cause table, integrity queries, useful one-liners
 - [`docs/TESTING.md`](docs/TESTING.md) — the suites and the pinned clock
+- [`docs/API.md`](docs/API.md) — the HTTP API, with Swagger UI at `/api/docs`
 - [`docs/INGESTION.md`](docs/INGESTION.md) — CSV import and the connector contract
 - [Issues and milestones](https://github.com/smantzou93/project-manager-dashboard-generic/issues)
 

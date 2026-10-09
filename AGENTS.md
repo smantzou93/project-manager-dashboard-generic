@@ -186,6 +186,11 @@ every instance compiled cleanly while producing plausible wrong behaviour:
   hence `ts()`.
 - `uuid.UUID` compared against `str` made every re-import look like a change.
 - `Decimal` compared against `float` made "unchanged" unreachable.
+- `sql.json()` is broken on that connection too. Use `json()` from
+  `queries/scope.ts` with an explicit `::jsonb` cast, as with `ts()`.
+
+The rule: **if you reach for a postgres.js value helper on this connection,
+assume it is broken** and serialise explicitly.
 
 **Drizzle's migration ledger lives in a separate `drizzle` schema.** Dropping
 `public` alone leaves it intact, after which `db:migrate` reports success in

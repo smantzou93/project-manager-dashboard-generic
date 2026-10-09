@@ -20,7 +20,7 @@ const PORT = Number(process.env.PMDASH_TEST_PORT ?? 3210);
 const BASE_URL = `http://127.0.0.1:${PORT}`;
 
 export default defineConfig({
-  testDir: './tests/visual',
+  testDir: './tests',
   // Screenshot comparison is order-independent but shares one app and one
   // database; parallel workers racing the same Postgres makes failures
   // non-reproducible, which defeats the purpose.
@@ -69,21 +69,28 @@ export default defineConfig({
 
   projects: [
     {
+      // Contract tests: spec-driven, no browser needed, so they run first and
+      // fail fast when the API has drifted from its published document.
+      name: 'api',
+      testMatch: /tests\/api\/.*\.spec\.ts/,
+      use: { baseURL: BASE_URL },
+    },
+    {
       name: 'desktop',
       use: { viewport: { width: 1440, height: 1000 } },
       // Without this the desktop project also picks up the dark and mobile
       // specs and runs them in a light 1440px context, where they cannot pass.
-      testIgnore: [/theme\.spec\.ts/, /responsive\.spec\.ts/],
+      testMatch: /tests\/visual\/(dashboard|projects)\.spec\.ts/,
     },
     {
       name: 'dark',
       use: { colorScheme: 'dark', viewport: { width: 1440, height: 1000 } },
-      testMatch: /theme\.spec\.ts/,
+      testMatch: /tests\/visual\/theme\.spec\.ts/,
     },
     {
       name: 'mobile',
       use: { ...devices['Pixel 7'], deviceScaleFactor: 1 },
-      testMatch: /responsive\.spec\.ts/,
+      testMatch: /tests\/visual\/responsive\.spec\.ts/,
     },
   ],
 

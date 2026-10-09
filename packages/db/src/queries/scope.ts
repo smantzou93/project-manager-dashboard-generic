@@ -94,3 +94,18 @@ export const subDays = (d: Date, n: number) => new Date(d.getTime() - n * 86_400
  * it also removes any dependence on the driver's timezone handling.
  */
 export const ts = (d: Date) => d.toISOString();
+
+/**
+ * Renders a value for a `jsonb` column. Always pair it with an explicit
+ * `::jsonb` cast.
+ *
+ * The same cause as `ts` above, and the fourth symptom of it: `drizzle()`
+ * mutates the postgres.js instance's serialisers, which breaks the driver's
+ * own `sql.json()` helper exactly as it breaks `Date` binding. It fails with
+ * the same unhelpful message -- "Received an instance of Object" -- from deep
+ * inside the bind path.
+ *
+ * If you find yourself reaching for a postgres.js value helper on this
+ * connection, assume it is broken and serialise explicitly instead.
+ */
+export const json = (value: unknown) => JSON.stringify(value);

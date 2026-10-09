@@ -18,6 +18,7 @@
  *     "how long did this sit in review", which is the question PMs actually ask.
  */
 
+import { sql } from 'drizzle-orm';
 import type { AnyPgColumn } from 'drizzle-orm/pg-core';
 import {
   bigserial,
@@ -477,6 +478,18 @@ export const workItems = pgTable(
     index('work_items_assignee_idx').on(t.assigneeId),
     // Throughput and velocity scan by completion date within a project.
     index('work_items_completed_idx').on(t.projectId, t.completedAt),
+    /*
+     * Full-text search over title and description.
+     *
+     * Declared as a raw expression index because Drizzle cannot express a
+     * to_tsvector() index directly. The matching query in queries/search.ts
+     * must use the identical expression, or Postgres will not use this index
+     * and search degrades to a sequential scan on every keystroke.
+     */
+    index('work_items_search_idx').using(
+      'gin',
+      sql`to_tsvector('english', coalesce(${t.title}, '') || ' ' || coalesce(${t.description}, ''))`,
+    ),
     // Aging WIP needs "started but not finished", ordered by age.
     index('work_items_started_idx').on(t.projectId, t.startedAt),
     index('work_items_blocked_idx').on(t.isBlocked),
