@@ -1,3 +1,9 @@
+import { loadRootEnv } from './load-root-env.mjs';
+
+// Before the config object is evaluated, so DATABASE_URL is present for any
+// code the server renders.
+loadRootEnv();
+
 /** @type {import('next').NextConfig} */
 export default {
   // The db package ships TypeScript source rather than a build step, so Next

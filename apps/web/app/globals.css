@@ -30,8 +30,7 @@
 
   --radius: 10px;
   --mono: ui-monospace, SFMono-Regular, Menlo, monospace;
-  --sans:
-    system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --sans: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -185,6 +184,11 @@ main {
   display: grid;
   gap: 16px;
 }
+.grid > * {
+  /* Grid items default to min-width:auto and so refuse to shrink below their
+     content, which is what actually pushes a page sideways. */
+  min-width: 0;
+}
 .grid-2 {
   grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
 }
@@ -246,7 +250,9 @@ main {
   width: 100%;
   height: auto;
   display: block;
-  overflow: visible;
+  /* `visible` lets axis labels paint outside the viewBox, which at phone width
+     extends the document. Clip instead; the labels sit inside the padding. */
+  overflow: hidden;
 }
 .chart figcaption {
   margin-top: 8px;
@@ -396,6 +402,20 @@ main {
 }
 
 /* --- tables -------------------------------------------------------------- */
+
+/*
+ * Wide tables scroll inside their card, never the page.
+ *
+ * Without the wrapper the risk table pushes the document sideways at phone
+ * width and every other column goes off-screen -- a failure that is completely
+ * invisible in a desktop screenshot, which is why there is a test for it.
+ */
+.table-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin: 0 -16px;
+  padding: 0 16px;
+}
 
 table.data {
   width: 100%;
@@ -603,5 +623,36 @@ table.data .key-cell {
   }
   .grid-2 {
     grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* --- narrow widths ------------------------------------------------------- */
+
+@media (max-width: 640px) {
+  main {
+    padding: 16px;
+  }
+  .topbar {
+    padding: 0 16px;
+    gap: 12px;
+  }
+  .brand small {
+    display: none;
+  }
+  .page-head h1 {
+    font-size: 19px;
+  }
+  .asof {
+    margin-left: 0;
+    width: 100%;
+  }
+  .tiles {
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  }
+  .grid-2 {
+    grid-template-columns: 1fr;
+  }
+  .truncate {
+    max-width: 18ch;
   }
 }

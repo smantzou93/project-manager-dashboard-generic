@@ -25,8 +25,21 @@ import {
 } from '@pmdash/db/queries';
 
 import { BurnupChart, CumulativeFlowChart, ThroughputChart } from '../../../components/charts';
-import { AgingTable, HealthBadge, Panel, Progress, Tile, TriggerList } from '../../../components/ui';
+import {
+  AgingTable,
+  HealthBadge,
+  Panel,
+  Progress,
+  Tile,
+  TriggerList,
+} from '../../../components/ui';
 import { fmtDate, fmtDays, getViewContext, plural } from '../../../lib/view-context';
+
+// Metrics must never come from a cache: a stale number is worse than a slow one
+// when someone is deciding what to escalate. Declared per page rather than on
+// the root layout, because a force-dynamic layout also swallows the not-found
+// boundary -- the custom 404 renders into the flight payload and never commits.
+export const dynamic = 'force-dynamic';
 
 export default async function ProjectPage({ params }: { params: Promise<{ key: string }> }) {
   const { key } = await params;
@@ -66,9 +79,9 @@ export default async function ProjectPage({ params }: { params: Promise<{ key: s
         864e5,
     );
     verdict =
-      slip > 0
-        ? `Tracking ${slip} days past the ${fmtDate(project.targetDate)} target, at the current rate.`
-        : `Tracking ${Math.abs(slip)} days inside the ${fmtDate(project.targetDate)} target.`;
+      slip > 0 ?
+        `Tracking ${slip} days past the ${fmtDate(project.targetDate)} target, at the current rate.`
+      : `Tracking ${Math.abs(slip)} days inside the ${fmtDate(project.targetDate)} target.`;
     verdictTone = slip > 0 ? 'badge-bad' : 'badge-ok';
   } else if (forecast.ok) {
     verdict = `Projected to finish ${fmtDate(forecast.completionDate)}. No target date set.`;
@@ -103,8 +116,16 @@ export default async function ProjectPage({ params }: { params: Promise<{ key: s
         <Tile label="Complete" value={`${pct}%`} sub={`${wip.done} of ${total}`} />
         <Tile label="In flight" value={wip.inFlight} sub="started, not finished" />
         <Tile label="Blocked" value={wip.blocked} sub="needs unblocking" />
-        <Tile label="Cycle time" value={fmtDays(cycle.medianDays)} sub={`p85 ${fmtDays(cycle.p85Days)}`} />
-        <Tile label="Lead time" value={fmtDays(lead.medianDays)} sub={`p85 ${fmtDays(lead.p85Days)}`} />
+        <Tile
+          label="Cycle time"
+          value={fmtDays(cycle.medianDays)}
+          sub={`p85 ${fmtDays(cycle.p85Days)}`}
+        />
+        <Tile
+          label="Lead time"
+          value={fmtDays(lead.medianDays)}
+          sub={`p85 ${fmtDays(lead.p85Days)}`}
+        />
         <Tile label={plural(labels.impediment)} value={imps.length} sub="open" />
       </div>
 
@@ -140,52 +161,53 @@ export default async function ProjectPage({ params }: { params: Promise<{ key: s
           title={plural(labels.milestone)}
           definition={`Completion of each ${labels.milestone.toLowerCase()} against its due date.`}
         >
-          {miles.length === 0 ? (
+          {miles.length === 0 ?
             <p className="muted">None defined.</p>
-          ) : (
-            <table className="data">
-              <thead>
-                <tr>
-                  <th scope="col">{labels.milestone}</th>
-                  <th scope="col">Due</th>
-                  <th scope="col">Progress</th>
-                  <th scope="col" className="num">
-                    Items
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {miles.map((m) => {
-                  const mp = m.total === 0 ? 0 : Math.round((m.done / m.total) * 100);
-                  const overdue =
-                    m.dueDate && !m.completedAt && new Date(`${m.dueDate}T00:00:00Z`) < asOf;
-                  return (
-                    <tr key={m.id}>
-                      <td>{m.name}</td>
-                      <td className="muted">
-                        {fmtDate(m.dueDate)}
-                        {overdue ? (
-                          <>
-                            {' '}
-                            <span className="badge badge-bad">overdue</span>
-                          </>
-                        ) : null}
-                      </td>
-                      <td>
-                        <Progress pct={mp} />
-                        <span className="muted" style={{ fontSize: 12 }}>
-                          {mp}%
-                        </span>
-                      </td>
-                      <td className="num">
-                        {m.done}/{m.total}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          )}
+          : <div className="table-scroll">
+              <table className="data">
+                <thead>
+                  <tr>
+                    <th scope="col">{labels.milestone}</th>
+                    <th scope="col">Due</th>
+                    <th scope="col">Progress</th>
+                    <th scope="col" className="num">
+                      Items
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {miles.map((m) => {
+                    const mp = m.total === 0 ? 0 : Math.round((m.done / m.total) * 100);
+                    const overdue =
+                      m.dueDate && !m.completedAt && new Date(`${m.dueDate}T00:00:00Z`) < asOf;
+                    return (
+                      <tr key={m.id}>
+                        <td>{m.name}</td>
+                        <td className="muted">
+                          {fmtDate(m.dueDate)}
+                          {overdue ?
+                            <>
+                              {' '}
+                              <span className="badge badge-bad">overdue</span>
+                            </>
+                          : null}
+                        </td>
+                        <td>
+                          <Progress pct={mp} />
+                          <span className="muted" style={{ fontSize: 12 }}>
+                            {mp}%
+                          </span>
+                        </td>
+                        <td className="num">
+                          {m.done}/{m.total}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          }
         </Panel>
       </div>
 
@@ -206,40 +228,41 @@ export default async function ProjectPage({ params }: { params: Promise<{ key: s
         <section className="card">
           <h2>Open {plural(labels.impediment).toLowerCase()}</h2>
           <p className="defn">Unresolved, oldest first.</p>
-          {imps.length === 0 ? (
+          {imps.length === 0 ?
             <p className="muted">None open.</p>
-          ) : (
-            <table className="data">
-              <thead>
-                <tr>
-                  <th scope="col">Title</th>
-                  <th scope="col">Kind</th>
-                  <th scope="col">Severity</th>
-                  <th scope="col">Owner</th>
-                  <th scope="col" className="num">
-                    Age
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {imps.map((i) => (
-                  <tr key={i.id}>
-                    <td>
-                      <div className="truncate" title={i.title}>
-                        {i.title}
-                      </div>
-                    </td>
-                    <td className="muted">{i.kind ?? '—'}</td>
-                    <td>
-                      <span className="badge">{i.severity ?? '—'}</span>
-                    </td>
-                    <td className="muted">{i.owner ?? '—'}</td>
-                    <td className="num">{i.ageDays.toFixed(0)}d</td>
+          : <div className="table-scroll">
+              <table className="data">
+                <thead>
+                  <tr>
+                    <th scope="col">Title</th>
+                    <th scope="col">Kind</th>
+                    <th scope="col">Severity</th>
+                    <th scope="col">Owner</th>
+                    <th scope="col" className="num">
+                      Age
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
+                </thead>
+                <tbody>
+                  {imps.map((i) => (
+                    <tr key={i.id}>
+                      <td>
+                        <div className="truncate" title={i.title}>
+                          {i.title}
+                        </div>
+                      </td>
+                      <td className="muted">{i.kind ?? '—'}</td>
+                      <td>
+                        <span className="badge">{i.severity ?? '—'}</span>
+                      </td>
+                      <td className="muted">{i.owner ?? '—'}</td>
+                      <td className="num">{i.ageDays.toFixed(0)}d</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          }
         </section>
       </div>
     </main>

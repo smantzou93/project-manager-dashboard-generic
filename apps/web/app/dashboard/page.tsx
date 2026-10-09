@@ -24,6 +24,12 @@ function pctChange(now: number, before: number): number {
   return ((now - before) / before) * 100;
 }
 
+// Metrics must never come from a cache: a stale number is worse than a slow one
+// when someone is deciding what to escalate. Declared per page rather than on
+// the root layout, because a force-dynamic layout also swallows the not-found
+// boundary -- the custom 404 renders into the flight payload and never commits.
+export const dynamic = 'force-dynamic';
+
 export default async function DashboardPage() {
   const { asOf, labels } = await getViewContext();
   const snap = await dashboardSnapshot(asOf);
@@ -33,10 +39,10 @@ export default async function DashboardPage() {
   const weeks = snap.throughput.slice(0, -1);
   const recent = weeks.slice(-4);
   const previous = weeks.slice(-8, -4);
-  const recentMean = recent.length ? recent.reduce((a, b) => a + b.completed, 0) / recent.length : 0;
-  const prevMean = previous.length
-    ? previous.reduce((a, b) => a + b.completed, 0) / previous.length
-    : 0;
+  const recentMean =
+    recent.length ? recent.reduce((a, b) => a + b.completed, 0) / recent.length : 0;
+  const prevMean =
+    previous.length ? previous.reduce((a, b) => a + b.completed, 0) / previous.length : 0;
 
   // Cycle time over the last 60 days, to compare against the all-time figure.
   const recentCycle = await cycleTime(asOf, { from: new Date(asOf.getTime() - 60 * 864e5) });
@@ -47,8 +53,7 @@ export default async function DashboardPage() {
         <div>
           <h1>Dashboard</h1>
           <p>
-            Flow across every {labels.project.toLowerCase()}. Each panel states its own
-            definition.
+            Flow across every {labels.project.toLowerCase()}. Each panel states its own definition.
           </p>
         </div>
         <span className="asof">as of {asOf.toISOString().slice(0, 16).replace('T', ' ')}Z</span>
@@ -66,12 +71,12 @@ export default async function DashboardPage() {
           value={fmtDays(snap.cycle.medianDays)}
           sub={`median · p85 ${fmtDays(snap.cycle.p85Days)}`}
           delta={
-            recentCycle.medianDays && snap.cycle.medianDays
-              ? {
-                  value: pctChange(recentCycle.medianDays, snap.cycle.medianDays),
-                  goodWhen: 'down',
-                }
-              : null
+            recentCycle.medianDays && snap.cycle.medianDays ?
+              {
+                value: pctChange(recentCycle.medianDays, snap.cycle.medianDays),
+                goodWhen: 'down',
+              }
+            : null
           }
         />
         <Tile

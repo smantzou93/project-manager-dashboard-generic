@@ -1,0 +1,197 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# A new push supersedes the previous run on the same ref; nobody needs the
+# results of a commit that has already been replaced.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '24'
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # The same four commands the pre-commit hook runs. Fast, no services.
+  # ---------------------------------------------------------------------------
+  gates:
+    name: Lint, types and unit tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm ci
+      - run: npm run format:check
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test
+
+  # ---------------------------------------------------------------------------
+  # Metric definitions against the pinned fixture. Needs Postgres, which is why
+  # this is here and not in a git hook.
+  # ---------------------------------------------------------------------------
+  integration:
+    name: Metrics against the pinned fixture
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17.6-alpine
+        env:
+          POSTGRES_USER: pmdash
+          POSTGRES_PASSWORD: ci-not-a-secret
+          POSTGRES_DB: pmdash
+        ports: ['5432:5432']
+        # Without a healthcheck the job races initdb and fails intermittently,
+        # which is worse than failing consistently.
+        options: >-
+          --health-cmd "pg_isready -U pmdash"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+    env:
+      DATABASE_URL: postgres://pmdash:ci-not-a-secret@127.0.0.1:5432/pmdash
+      POSTGRES_USER: pmdash
+      POSTGRES_PASSWORD: ci-not-a-secret
+      POSTGRES_DB: pmdash
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm ci
+
+      # The suite refuses to run against a live-clock fixture, so the clock is
+      # pinned here exactly as tests/fixtures.ts expects.
+      - name: Prepare the fixture
+        run: |
+          printf 'DATABASE_URL=%s\n' "$DATABASE_URL" > .env
+          npm run db:migrate
+          PMDASH_SEED_NOW=2026-10-01T12:00:00Z npm run db:seed -- construction
+
+      - run: npm run test:integration
+
+  # ---------------------------------------------------------------------------
+  # Screenshots. Linux baselines are the authoritative ones -- font
+  # rasterisation differs from macOS, so a laptop-generated baseline can never
+  # match this runner.
+  # ---------------------------------------------------------------------------
+  visual:
+    name: Visual regression
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17.6-alpine
+        env:
+          POSTGRES_USER: pmdash
+          POSTGRES_PASSWORD: ci-not-a-secret
+          POSTGRES_DB: pmdash
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U pmdash"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+    env:
+      DATABASE_URL: postgres://pmdash:ci-not-a-secret@127.0.0.1:5432/pmdash
+      PMDASH_AS_OF: '2026-10-01T12:00:00Z'
+      PMDASH_SEED_NOW: '2026-10-01T12:00:00Z'
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+
+      - name: Prepare the fixture
+        run: |
+          printf 'DATABASE_URL=%s\n' "$DATABASE_URL" > .env
+          npm run db:migrate
+          npm run db:seed -- construction
+
+      # dev.sh is skipped here: it starts a container runtime, and Postgres is
+      # already provided as a service. The fixture above is the part that
+      # matters.
+      - name: Run the visual suite
+        id: visual
+        run: npx playwright test
+        env:
+          PMDASH_SKIP_STACK: '1'
+
+      - name: Upload the report, diffs and any new baselines
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            playwright-report/
+            test-results/
+            tests/visual/__baselines__/linux/
+          retention-days: 14
+
+      # Bootstrap: on the very first run there are no Linux baselines, because
+      # they cannot be generated on a laptop -- font rasterisation differs, so
+      # a macOS baseline can never match this runner. Playwright writes them
+      # and fails. Download them from the artifact above and commit them once;
+      # from then on this step is a no-op.
+      - name: Explain a missing-baseline failure
+        if: failure()
+        run: |
+          if [ -d tests/visual/__baselines__/linux ]; then
+            echo "::notice::Linux baselines were written by this run."
+            echo "::notice::If this is the first CI run, download the playwright-report"
+            echo "::notice::artifact and commit tests/visual/__baselines__/linux/."
+          fi
+
+      # On a PR, put the before/after images where a reviewer will see them
+      # rather than making them download an artifact.
+      - name: Comment the visual diff on the PR
+        if: failure() && github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+            const dir = 'test-results';
+            if (!fs.existsSync(dir)) return;
+
+            const changed = fs.readdirSync(dir, { withFileTypes: true })
+              .filter((d) => d.isDirectory())
+              .map((d) => d.name)
+              .filter((name) =>
+                fs.readdirSync(path.join(dir, name)).some((f) => f.endsWith('-diff.png')));
+
+            if (changed.length === 0) return;
+
+            const body = [
+              '### Visual changes detected',
+              '',
+              `${changed.length} screenshot${changed.length === 1 ? '' : 's'} differ from the committed baseline.`,
+              '',
+              ...changed.map((name) => `- \`${name.replace(/-(desktop|dark|mobile)$/, '')}\``),
+              '',
+              'The expected, actual and diff images are in the **playwright-report** artifact on this run.',
+              '',
+              'If the change is intended, refresh the baselines and the documentation screenshots:',
+              '',
+              '```bash',
+              'npm run test:visual:update   # Linux baselines are authoritative; see docs/TESTING.md',
+              'npm run screenshots          # refresh the images used in the README and docs',
+              '```',
+            ].join('\n');
+
+            await github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body,
+            });

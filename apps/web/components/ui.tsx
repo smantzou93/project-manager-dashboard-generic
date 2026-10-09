@@ -36,7 +36,9 @@ export function Tile({
       <dt>{label}</dt>
       <dd>
         {value} {deltaEl}
-        {sub ? <div className="sub">{sub}</div> : null}
+        {sub ?
+          <div className="sub">{sub}</div>
+        : null}
       </dd>
     </dl>
   );
@@ -112,60 +114,61 @@ export function AgingTable({
   const shown = items.slice(0, limit);
   return (
     <>
-      <table className="data">
-        <caption className="visually-hidden">
-          {itemLabel}s in flight, oldest first
-        </caption>
-        <thead>
-          <tr>
-            <th scope="col">Item</th>
-            <th scope="col">Title</th>
-            <th scope="col">Status</th>
-            <th scope="col">Owner</th>
-            <th scope="col" className="num">
-              Age
-            </th>
-            <th scope="col">vs p85</th>
-          </tr>
-        </thead>
-        <tbody>
-          {shown.map((i) => (
-            <tr key={i.id}>
-              <td className="key-cell">{i.key}</td>
-              <td>
-                <div className="truncate" title={i.title}>
-                  {i.title}
-                </div>
-              </td>
-              <td>
-                <span className={`badge ${i.isBlocked ? 'badge-bad' : ''}`}>
-                  {i.isBlocked ? 'blocked' : i.status}
-                </span>
-              </td>
-              <td className="muted">{i.assignee ?? '—'}</td>
-              <td className="num">{i.ageDays.toFixed(1)}d</td>
-              <td>
-                {median !== null && p85 !== null ? (
-                  <AgeBar days={i.ageDays} median={median} p85={p85} />
-                ) : (
-                  '—'
-                )}
-              </td>
+      <div className="table-scroll">
+        <table className="data">
+          <caption className="visually-hidden">{itemLabel}s in flight, oldest first</caption>
+          <thead>
+            <tr>
+              <th scope="col">Item</th>
+              <th scope="col">Title</th>
+              <th scope="col">Status</th>
+              <th scope="col">Owner</th>
+              <th scope="col" className="num">
+                Age
+              </th>
+              <th scope="col">vs p85</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
-      {items.length > limit ? (
+          </thead>
+          <tbody>
+            {shown.map((i) => (
+              <tr key={i.id}>
+                <td className="key-cell">{i.key}</td>
+                <td>
+                  <div className="truncate" title={i.title}>
+                    {i.title}
+                  </div>
+                </td>
+                <td>
+                  <span className={`badge ${i.isBlocked ? 'badge-bad' : ''}`}>
+                    {i.isBlocked ? 'blocked' : i.status}
+                  </span>
+                </td>
+                <td className="muted">{i.assignee ?? '—'}</td>
+                <td className="num">{i.ageDays.toFixed(1)}d</td>
+                <td>
+                  {median !== null && p85 !== null ?
+                    <AgeBar days={i.ageDays} median={median} p85={p85} />
+                  : '—'}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      {items.length > limit ?
         <p className="muted" style={{ marginBottom: 0 }}>
           Showing the {limit} oldest of {items.length} in flight.
         </p>
-      ) : null}
+      : null}
     </>
   );
 }
 
 export function RiskBar({ risk }: { risk: number }) {
-  const band = risk >= 60 ? 'high' : risk >= 30 ? 'med' : 'low';
+  const band =
+    risk >= 60 ? 'high'
+    : risk >= 30 ? 'med'
+    : 'low';
   return (
     <span
       className={`riskbar risk-${band}`}
