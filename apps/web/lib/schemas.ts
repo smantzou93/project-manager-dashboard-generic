@@ -35,6 +35,21 @@ const csvOf = <T extends z.ZodTypeAny>(inner: T) =>
 
 const csvUuid = csvOf(z.string().uuid());
 
+/**
+ * `z.coerce.date()` on its own produces "expected date, received Date" for an
+ * unparseable string — it coerces first, gets an Invalid Date, and then
+ * reports the type it just produced. That message is nonsense to whoever is
+ * reading the error envelope, so the failure is described in terms of what
+ * they sent.
+ */
+const isoDateParam = z
+  .string()
+  .refine(
+    (v) => !Number.isNaN(Date.parse(v)),
+    'Expected an ISO-8601 date, e.g. 2026-06-30T23:59:59Z',
+  )
+  .transform((v) => new Date(v));
+
 export const searchQuerySchema = z.object({
   q: z.string().trim().max(200).optional(),
   project: z.string().uuid().optional(),
@@ -47,8 +62,8 @@ export const searchQuerySchema = z.object({
     .enum(['true', 'false'])
     .transform((v) => v === 'true')
     .optional(),
-  from: z.coerce.date().optional(),
-  to: z.coerce.date().optional(),
+  from: isoDateParam.optional(),
+  to: isoDateParam.optional(),
   // Bounded on the server: a caller asking for 10,000 rows gets 100, rather
   // than a timeout plus a 500.
   limit: z.coerce.number().int().min(1).max(100).default(25),
@@ -123,5 +138,5 @@ export const updateViewSchema = z
 export const metricsQuerySchema = z.object({
   project: z.string().uuid().optional(),
   portfolio: z.string().uuid().optional(),
-  asOf: z.coerce.date().optional(),
+  asOf: isoDateParam.optional(),
 });

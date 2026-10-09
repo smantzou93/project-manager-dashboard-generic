@@ -3,6 +3,9 @@ import { NextResponse, type NextRequest } from 'next/server';
 /**
  * Assigns a correlation id to every request.
  *
+ * Named `proxy` and living in `proxy.ts`: Next 16 deprecated the `middleware`
+ * convention, and the dev server warns on every boot until it moves.
+ *
  * Runs on the edge runtime, where AsyncLocalStorage is unavailable, so this
  * does one job only: mint the id (or adopt an inbound one) and put it on both
  * the request and the response. Server components pick it up from the request
@@ -23,7 +26,7 @@ function mint(): string {
   return Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('');
 }
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const inbound = request.headers.get(HEADER);
   const correlationId = inbound && SAFE.test(inbound) ? inbound : mint();
 
