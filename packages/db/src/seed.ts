@@ -31,8 +31,8 @@ import { eq, sql as drizzleSql } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 
-import { applyPreset, loadPreset, setSetting, type Preset } from './presets.js';
-import * as s from './schema.js';
+import { applyPreset, loadPreset, setSetting, type Preset } from './presets';
+import * as s from './schema';
 
 loadEnv({ path: new URL('../../../.env', import.meta.url).pathname });
 

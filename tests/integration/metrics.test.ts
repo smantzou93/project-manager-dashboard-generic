@@ -13,9 +13,9 @@
 
 import { beforeAll, describe, expect, it } from 'vitest';
 
-import { sql } from '../../packages/db/src/client.js';
-import * as q from '../../packages/db/src/queries/index.js';
-import { EXPECTED_METRICS as M, EXPECTED_TOTALS as T, PINNED_NOW } from '../fixtures.js';
+import { sql } from '../../packages/db/src/client';
+import * as q from '../../packages/db/src/queries/index';
+import { EXPECTED_METRICS as M, EXPECTED_TOTALS as T, PINNED_NOW } from '../fixtures';
 
 const asOf = PINNED_NOW;
 

@@ -30,7 +30,7 @@ export default tseslint.config(
           // supply it instead of erroring.
           // vitest.config.mts is deliberately absent: it IS in tsconfig's
           // include, and listing a file in both is itself an error.
-          allowDefaultProject: ['eslint.config.mjs'],
+          allowDefaultProject: ['eslint.config.mjs', 'apps/web/next.config.mjs'],
         },
         tsconfigRootDir: import.meta.dirname,
       },

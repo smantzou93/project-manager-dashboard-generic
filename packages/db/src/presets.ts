@@ -26,7 +26,7 @@ import {
   taxonomies,
   taxonomyTerms,
   type statusCategoryEnum,
-} from './schema.js';
+} from './schema';
 
 /**
  * The Drizzle handle these functions accept.
@@ -38,7 +38,7 @@ import {
  * client keeps the seed and the preset CLI able to pass the same handle while
  * actually checking the queries.
  */
-type Db = typeof import('./client.js').db;
+type Db = typeof import('./client').db;
 
 type StatusCategory = (typeof statusCategoryEnum.enumValues)[number];
 

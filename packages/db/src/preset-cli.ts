@@ -12,8 +12,8 @@ import { config as loadEnv } from 'dotenv';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 
-import { applyPreset, listPresets, loadPreset } from './presets.js';
-import * as s from './schema.js';
+import { applyPreset, listPresets, loadPreset } from './presets';
+import * as s from './schema';
 
 loadEnv({ path: new URL('../../../.env', import.meta.url).pathname });
 

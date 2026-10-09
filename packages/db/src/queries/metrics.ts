@@ -11,8 +11,8 @@
  * injected, and group items never enter an aggregate.
  */
 
-import { sql } from '../client.js';
-import { baseFilter, subDays, ts, type Scope } from './scope.js';
+import { sql } from '../client';
+import { baseFilter, subDays, ts, type Scope } from './scope';
 
 // ---------------------------------------------------------------------------
 // Cycle and lead time

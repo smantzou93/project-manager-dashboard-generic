@@ -18,7 +18,7 @@
  *     type, because the type term's slug differs per preset.
  */
 
-import { sql } from '../client.js';
+import { sql } from '../client';
 
 /** The slice a metric is computed over. All fields optional; omitted = all. */
 export type Scope = {

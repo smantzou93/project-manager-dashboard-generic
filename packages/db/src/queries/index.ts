@@ -3,6 +3,6 @@
  * every number on every screen has exactly one definition.
  */
 
-export * from './scope.js';
-export * from './metrics.js';
-export * from './projects.js';
+export * from './scope';
+export * from './metrics';
+export * from './projects';

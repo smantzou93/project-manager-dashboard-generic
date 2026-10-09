@@ -14,7 +14,7 @@
 
 import { config as loadEnv } from 'dotenv';
 
-import { FIXTURE_PRESET, PINNED_NOW, PINNED_NOW_ISO } from '../fixtures.js';
+import { FIXTURE_PRESET, PINNED_NOW, PINNED_NOW_ISO } from '../fixtures';
 
 const SEED_CMD = `./scripts/dev.sh --pinned --preset ${FIXTURE_PRESET} --seed-only`;
 
@@ -36,7 +36,7 @@ export async function setup() {
   }
 
   // Imported here, after loadEnv, so the lazy client sees DATABASE_URL.
-  const { sql } = await import('../../packages/db/src/client.js');
+  const { sql } = await import('../../packages/db/src/client');
 
   let settings: { key: string; value: unknown }[];
   try {
@@ -78,6 +78,6 @@ export async function setup() {
 }
 
 export async function teardown() {
-  const { sql, isConnected } = await import('../../packages/db/src/client.js');
+  const { sql, isConnected } = await import('../../packages/db/src/client');
   if (isConnected()) await sql.end({ timeout: 5 }).catch(() => {});
 }

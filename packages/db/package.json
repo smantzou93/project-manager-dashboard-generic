@@ -6,7 +6,9 @@
   "main": "./src/index.ts",
   "exports": {
     ".": "./src/index.ts",
-    "./schema": "./src/schema.ts"
+    "./schema": "./src/schema.ts",
+    "./queries": "./src/queries/index.ts",
+    "./presets": "./src/presets.ts"
   },
   "scripts": {
     "generate": "drizzle-kit generate",

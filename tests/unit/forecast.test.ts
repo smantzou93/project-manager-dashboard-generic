@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { forecastFromBurnup, type BurnupPoint } from '../../packages/db/src/queries/metrics.js';
+import { forecastFromBurnup, type BurnupPoint } from '../../packages/db/src/queries/metrics';
 
 /** A burnup where `completed` advances by exactly `perDay` each day. */
 function linearBurnup(days: number, perDay: number, scope: number): BurnupPoint[] {

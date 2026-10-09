@@ -2,6 +2,7 @@
 
 # dependencies
 node_modules/
+packages/db/node_modules/
 /.pnp
 .pnp.js
 
@@ -22,6 +23,8 @@ __pycache__/
 # next.js
 /.next/
 /out/
+apps/web/.next/
+apps/web/out/
 
 # production
 /build
@@ -45,3 +48,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Next.js
+.next/
+.turbo/

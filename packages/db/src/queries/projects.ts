@@ -3,9 +3,9 @@
  * multi-project view is built on.
  */
 
-import { sql } from '../client.js';
-import { burnup, forecastFromBurnup, type Forecast } from './metrics.js';
-import { ts, type Scope } from './scope.js';
+import { sql } from '../client';
+import { burnup, forecastFromBurnup, type Forecast } from './metrics';
+import { ts, type Scope } from './scope';
 
 export type ProjectRow = {
   id: string;
