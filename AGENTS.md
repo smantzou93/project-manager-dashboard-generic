@@ -204,6 +204,12 @@ config bug. Same fix.
 because the row counts change. Reseed with
 `./scripts/dev.sh --pinned --preset construction --seed-only`.
 
+**Nothing on the page is interactive, and there is no error.** Next 16 treats
+`127.0.0.1` and `localhost` as different origins and blocks dev resources
+between them, which stops the dev client bootstrapping and React mounting at
+all. `allowedDevOrigins` in `apps/web/next.config.mjs` covers both; add any new
+host there. The only clue is a warning on the server, not in the browser.
+
 **Known upstream, not yours to fix:** `npm run build` fails prerendering
 Next's internal `/_global-error`, and no 404 body renders. Both appear to be
 one React 19.3 / Next 16.4 error-boundary defect (#39, #44). `next dev` is
