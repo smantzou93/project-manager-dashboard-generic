@@ -1,0 +1,35 @@
+[project]
+name = "pmdash-ingest"
+version = "0.1.0"
+description = "CSV ingestion for the project manager dashboard"
+requires-python = ">=3.11"
+dependencies = [
+  "psycopg[binary]>=3.2",
+  "pydantic>=2.9",
+  "python-dateutil>=2.9",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.3", "ruff>=0.7"]
+
+[project.scripts]
+pmdash-ingest = "pmdash_ingest.__main__:main"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "RUF"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+# Integration tests need Postgres; marked so the fast suite can skip them.
+markers = ["db: requires a running database"]

@@ -79,6 +79,49 @@ jobs:
       - run: npm run test:integration
 
   # ---------------------------------------------------------------------------
+  # Python importer. The fast tests need nothing; the db-marked ones need
+  # Postgres, so both run here rather than splitting the suite across jobs.
+  # ---------------------------------------------------------------------------
+  ingestion:
+    name: CSV ingestion
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17.6-alpine
+        env:
+          POSTGRES_USER: pmdash
+          POSTGRES_PASSWORD: ci-not-a-secret
+          POSTGRES_DB: pmdash
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U pmdash"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+    env:
+      DATABASE_URL: postgres://pmdash:ci-not-a-secret@127.0.0.1:5432/pmdash
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - run: npm ci
+      - run: pip install -e 'apps/ingestion[dev]'
+
+      - name: Prepare the fixture
+        run: |
+          printf 'DATABASE_URL=%s\n' "$DATABASE_URL" > .env
+          npm run db:migrate
+          PMDASH_SEED_NOW=2026-10-01T12:00:00Z npm run db:seed -- construction
+
+      - run: ruff check apps/ingestion
+      - run: pytest apps/ingestion/tests -q
+
+  # ---------------------------------------------------------------------------
   # Screenshots. Linux baselines are the authoritative ones -- font
   # rasterisation differs from macOS, so a laptop-generated baseline can never
   # match this runner.
