@@ -168,9 +168,14 @@ jobs:
       # dev.sh is skipped here: it starts a container runtime, and Postgres is
       # already provided as a service. The fixture above is the part that
       # matters.
+      # Contract tests first: spec-driven, no browser, and they fail fast when
+      # the API has drifted from its published document.
+      - name: Contract tests against the OpenAPI document
+        run: npx playwright test --project=api
+
       - name: Run the visual suite
         id: visual
-        run: npx playwright test
+        run: npx playwright test --project=desktop --project=dark --project=mobile
         env:
           PMDASH_SKIP_STACK: '1'
 

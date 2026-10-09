@@ -84,6 +84,14 @@ export default tseslint.config(
       '@typescript-eslint/no-non-null-assertion': 'off',
       '@typescript-eslint/no-unsafe-member-access': 'off',
       '@typescript-eslint/no-unsafe-assignment': 'off',
+      // The contract suite walks an OpenAPI document and arbitrary response
+      // bodies. Both are untyped by nature -- the whole point is checking
+      // whether they match a schema -- so the unsafe-* rules have nothing
+      // useful to say there.
+      '@typescript-eslint/no-unsafe-argument': 'off',
+      '@typescript-eslint/no-unsafe-return': 'off',
+      '@typescript-eslint/no-unsafe-call': 'off',
+      '@typescript-eslint/no-unnecessary-type-assertion': 'off',
     },
   },
 

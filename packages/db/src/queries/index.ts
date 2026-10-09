@@ -6,3 +6,6 @@
 export * from './scope';
 export * from './metrics';
 export * from './projects';
+export * from './search';
+export * from './taxonomy';
+export * from './views';

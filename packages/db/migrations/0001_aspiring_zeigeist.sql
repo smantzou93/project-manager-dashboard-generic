@@ -1,0 +1,1 @@
+CREATE INDEX "work_items_search_idx" ON "work_items" USING gin (to_tsvector('english', coalesce("title", '') || ' ' || coalesce("description", '')));

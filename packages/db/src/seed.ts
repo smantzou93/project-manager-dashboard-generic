@@ -32,6 +32,7 @@ import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 
 import { applyPreset, loadPreset, setSetting, type Preset } from './presets';
+import { ensureBuiltinViews } from './queries/views';
 import * as s from './schema';
 
 loadEnv({ path: new URL('../../../.env', import.meta.url).pathname });
@@ -635,19 +636,16 @@ async function seed(preset: Preset) {
     );
   }
 
-  // --- saved views, to prove the consolidated-view plumbing ----------------
-  await db.insert(s.savedViews).values([
-    {
-      name: 'At-risk projects',
-      kind: 'portfolio',
-      config: { filters: { health: ['at_risk', 'off_track'] }, sort: 'health' },
-    },
-    {
-      name: 'Delivery review',
-      kind: 'dashboard',
-      config: { panels: ['velocity', 'cycle-time', 'cumulative-flow', 'impediments', 'forecast'] },
-    },
-  ]);
+  // --- saved views ---------------------------------------------------------
+  // Seeded from BUILTIN_VIEWS rather than written inline, so they are valid
+  // against the API's saved-view schema by construction.
+  //
+  // They were inline once, and had drifted: `panels` where the contract says
+  // `charts`, a `sort` value outside the enum, and a `health` filter search
+  // does not support. The contract tests caught it, which is the argument for
+  // having one definition rather than two.
+  const builtins = await ensureBuiltinViews();
+  console.log(`  saved views: ${builtins}`);
 
   console.log('');
   console.log(

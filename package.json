@@ -36,7 +36,9 @@
     "test:watch": "vitest --project unit",
     "test:integration": "vitest run --project integration",
     "test:all": "vitest run",
-    "test:visual": "playwright test",
+    "test:visual": "playwright test --project=desktop --project=dark --project=mobile",
+    "test:contract": "playwright test --project=api",
+    "openapi": "curl -fsS http://localhost:3000/api/openapi.json | python3 -m json.tool",
     "test:visual:update": "playwright test --update-snapshots",
     "screenshots": "./scripts/screenshots.sh",
     "//ingest": "The Python importer. Uses the venv in apps/ingestion so it works without an activated shell.",
@@ -49,11 +51,14 @@
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@playwright/test": "^1.64.0",
+    "ajv": "^8.20.0",
+    "ajv-formats": "^3.0.1",
     "eslint": "^10.12.0",
     "eslint-config-prettier": "^10.1.8",
     "prettier": "^3.9.9",
     "typescript-eslint": "^8.71.1",
-    "vitest": "^5.0.3"
+    "vitest": "^5.0.3",
+    "zod": "^4.6.5"
   },
   "overrides": {
     "react": "19.2.0",
