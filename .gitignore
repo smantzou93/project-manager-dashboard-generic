@@ -12,6 +12,9 @@ __pycache__/
 *.py[cod]
 .pytest_cache/
 .ruff_cache/
+*.egg-info/
+build/
+dist/
 
 # runtime artifacts -- structured logs and uploaded CSVs stay local
 /logs/

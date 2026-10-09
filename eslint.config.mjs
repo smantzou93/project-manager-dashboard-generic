@@ -15,7 +15,19 @@ import tseslint from 'typescript-eslint';
  * around and `strictNullChecks` violations are the bugs that actually happen.
  */
 export default tseslint.config(
-  { ignores: ['**/node_modules/**', '**/.next/**', '**/dist/**', 'packages/db/migrations/**'] },
+  {
+    ignores: [
+      '**/node_modules/**',
+      '**/.next/**',
+      '**/dist/**',
+      'packages/db/migrations/**',
+      // The Python virtualenv vendors JavaScript (pip bundles urllib3, which
+      // ships an emscripten worker). Nothing in there is ours.
+      '**/.venv/**',
+      'docs/screenshots/**',
+      'tests/visual/__baselines__/**',
+    ],
+  },
 
   js.configs.recommended,
   ...tseslint.configs.recommendedTypeChecked,
