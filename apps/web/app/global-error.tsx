@@ -21,8 +21,8 @@ export default function GlobalError({ error }: { error: Error & { digest?: strin
       >
         <h1 style={{ fontSize: 20 }}>Something went wrong</h1>
         <p>
-          The dashboard could not render. The most common cause is that the database is not
-          running or has no data yet.
+          The dashboard could not render. The most common cause is that the database is not running
+          or has no data yet.
         </p>
         <pre
           style={{
@@ -35,12 +35,12 @@ export default function GlobalError({ error }: { error: Error & { digest?: strin
         >
           ./scripts/dev.sh
         </pre>
-        {error.digest ? (
+        {error.digest ?
           <p style={{ color: '#5c6470', fontSize: 13 }}>
-            Reference <code>{error.digest}</code> — quote this when searching the logs or filing
-            an issue. See docs/TRIAGE.md.
+            Reference <code>{error.digest}</code> — quote this when searching the logs or filing an
+            issue. See docs/TRIAGE.md.
           </p>
-        ) : null}
+        : null}
       </body>
     </html>
   );

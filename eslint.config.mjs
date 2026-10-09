@@ -23,15 +23,15 @@ export default tseslint.config(
   {
     languageOptions: {
       parserOptions: {
-        projectService: {
-          // Config files are not in any tsconfig's `include` (tsc does not pick
-          // up .mjs without allowJs), so the project service has no type
-          // information for them. Listing them here lets the default project
-          // supply it instead of erroring.
-          // vitest.config.mts is deliberately absent: it IS in tsconfig's
-          // include, and listing a file in both is itself an error.
-          allowDefaultProject: ['eslint.config.mjs', 'apps/web/next.config.mjs'],
-        },
+        /*
+         * Explicit project list rather than `projectService: true`.
+         *
+         * The service is supposed to discover the nearest tsconfig per file,
+         * but it did not pick up tests/visual/tsconfig.json and reported every
+         * spec as "not found by the project service". Listing the three
+         * projects is deterministic and says plainly which configs exist.
+         */
+        project: ['./tsconfig.json', './tests/visual/tsconfig.json', './apps/web/tsconfig.json'],
         tsconfigRootDir: import.meta.dirname,
       },
     },
@@ -67,11 +67,24 @@ export default tseslint.config(
   {
     // Tests assert against loosely typed query results and use non-null
     // assertions heavily; that is appropriate in a test and noise to flag.
-    files: ['tests/**/*.ts'],
+    files: ['tests/**/*.ts', 'tests/**/*.tsx'],
     rules: {
       '@typescript-eslint/no-non-null-assertion': 'off',
       '@typescript-eslint/no-unsafe-member-access': 'off',
       '@typescript-eslint/no-unsafe-assignment': 'off',
+    },
+  },
+
+  {
+    // Config and loader files in plain .mjs are outside every tsconfig, so the
+    // type-aware rules cannot run on them. Lint them syntactically instead of
+    // failing to parse them.
+    files: ['**/*.mjs'],
+    ...tseslint.configs.disableTypeChecked,
+    languageOptions: {
+      parserOptions: { project: null },
+      // These run in Node, so `process` and friends are legitimate.
+      globals: { process: 'readonly', console: 'readonly', URL: 'readonly' },
     },
   },
 

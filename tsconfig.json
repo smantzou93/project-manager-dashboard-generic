@@ -18,9 +18,11 @@
   "include": [
     "packages/db/src/**/*.ts",
     "packages/db/drizzle.config.ts",
-    "tests/**/*.ts",
+    "tests/fixtures.ts",
+    "tests/unit/**/*.ts",
+    "tests/integration/**/*.ts",
     "eslint.config.mjs",
     "vitest.config.mts"
   ],
-  "exclude": ["node_modules", "packages/db/migrations", "apps/web", "**/.next"]
+  "exclude": ["node_modules", "packages/db/migrations", "apps/web", "tests/visual", "**/.next"]
 }

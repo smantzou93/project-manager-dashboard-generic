@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+# Runs before a push. One job: keep secrets out of a public repo.
+#
+# Deliberately not a full test run. Pushing is frequent and CI is the place
+# for the slow suites; a pre-push hook that takes two minutes trains people to
+# use --no-verify.
+
+set -uo pipefail
+RED=$'\033[31m'; GRN=$'\033[32m'; OFF=$'\033[0m'
+
+if git ls-files --error-unmatch .env >/dev/null 2>&1; then
+  printf '%sFAIL%s .env is tracked by git. Remove it from the index before pushing:\n' "$RED" "$OFF"
+  printf '      git rm --cached .env\n'
+  exit 1
+fi
+printf '%s  ok%s .env is not tracked\n' "$GRN" "$OFF"

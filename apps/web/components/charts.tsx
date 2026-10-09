@@ -42,7 +42,15 @@ function scaler(min: number, max: number, from: number, to: number) {
 /** Numbers in SVG paths, trimmed — keeps rendered markup byte-identical. */
 const n = (v: number) => Math.round(v * 100) / 100;
 
-function DataTable({ caption, head, rows }: { caption: string; head: string[]; rows: (string | number)[][] }) {
+function DataTable({
+  caption,
+  head,
+  rows,
+}: {
+  caption: string;
+  head: string[];
+  rows: (string | number)[][];
+}) {
   return (
     <table className="visually-hidden">
       <caption>{caption}</caption>
@@ -83,13 +91,21 @@ function Empty({ label, hint }: { label: string; hint: string }) {
 // Bars with a rolling average
 // ---------------------------------------------------------------------------
 
-export function ThroughputChart({ data, unit = 'items' }: { data: ThroughputBucket[]; unit?: string }) {
+export function ThroughputChart({
+  data,
+  unit = 'items',
+}: {
+  data: ThroughputBucket[];
+  unit?: string;
+}) {
   const W = 560;
   const H = 180;
   const pts = data.filter((_, i) => i < data.length - 1); // drop the partial week
 
   if (pts.length < 2) {
-    return <Empty label="Not enough history yet" hint="Throughput needs at least two complete weeks." />;
+    return (
+      <Empty label="Not enough history yet" hint="Throughput needs at least two complete weeks." />
+    );
   }
 
   const max = Math.max(...pts.map((p) => p.completed), 1);
@@ -140,11 +156,11 @@ export function ThroughputChart({ data, unit = 'items' }: { data: ThroughputBuck
         />
 
         {pts.map((p, i) =>
-          i % Math.ceil(pts.length / 6) === 0 ? (
+          i % Math.ceil(pts.length / 6) === 0 ?
             <text key={p.weekStart} x={n(x(i))} y={H - 8} className="tick" textAnchor="middle">
               {p.weekStart.slice(5)}
             </text>
-          ) : null,
+          : null,
         )}
       </svg>
       <figcaption>
@@ -217,7 +233,7 @@ export function VelocityChart({
 
         {data.map((d, i) => (
           <g key={d.iterationId}>
-            {usePoints && d.committedPoints ? (
+            {usePoints && d.committedPoints ?
               <rect
                 x={n(x(i) - bw / 2)}
                 y={n(y(d.committedPoints))}
@@ -226,7 +242,7 @@ export function VelocityChart({
                 className="bar-ghost"
                 rx="2"
               />
-            ) : null}
+            : null}
             <rect
               x={n(x(i) - bw / 2)}
               y={n(y(value(d)))}
@@ -251,11 +267,11 @@ export function VelocityChart({
       </svg>
       <figcaption>
         <span className="key key-bar" /> {label} completed
-        {usePoints ? (
+        {usePoints ?
           <>
             <span className="key key-ghost" /> committed
           </>
-        ) : null}
+        : null}
       </figcaption>
       <DataTable
         caption={`Velocity per ${iterationLabel.toLowerCase()}`}
@@ -285,7 +301,8 @@ export function CumulativeFlowChart({ data }: { data: FlowDay[] }) {
   const H = 220;
 
   const days = [...new Set(data.map((d) => d.day))].sort();
-  if (days.length < 2) return <Empty label="Not enough history" hint="Needs at least two days of transitions." />;
+  if (days.length < 2)
+    return <Empty label="Not enough history" hint="Needs at least two days of transitions." />;
 
   const byDay = new Map<string, Map<string, number>>();
   for (const d of data) {
@@ -293,9 +310,7 @@ export function CumulativeFlowChart({ data }: { data: FlowDay[] }) {
     byDay.get(d.day)!.set(d.category, d.count);
   }
 
-  const totals = days.map((d) =>
-    FLOW_ORDER.reduce((a, c) => a + (byDay.get(d)?.get(c) ?? 0), 0),
-  );
+  const totals = days.map((d) => FLOW_ORDER.reduce((a, c) => a + (byDay.get(d)?.get(c) ?? 0), 0));
   const max = Math.max(...totals, 1);
   const x = scaler(0, days.length - 1, PAD.left, W - PAD.right);
   const y = scaler(0, max, H - PAD.bottom, PAD.top);
@@ -311,12 +326,10 @@ export function CumulativeFlowChart({ data }: { data: FlowDay[] }) {
     const upper = [...running];
     const path = [
       ...days.map((_, i) => `${i === 0 ? 'M' : 'L'}${n(x(i))},${n(y(upper[i]!))}`),
-      ...days
-        .map((_, i) => days.length - 1 - i)
-        .map((i) => `L${n(x(i))},${n(y(lower[i]!))}`),
+      ...days.map((_, i) => days.length - 1 - i).map((i) => `L${n(x(i))},${n(y(lower[i]!))}`),
       'Z',
     ].join(' ');
-    return { cat, path, final: (byDay.get(days.at(-1)!)?.get(cat) ?? 0) };
+    return { cat, path, final: byDay.get(days.at(-1)!)?.get(cat) ?? 0 };
   });
 
   const summary = `${days.length} days. Today: ${bands
@@ -380,7 +393,8 @@ export function BurnupChart({
   const W = 560;
   const H = 200;
 
-  if (data.length < 2) return <Empty label="Not enough history" hint="Burnup needs at least two days." />;
+  if (data.length < 2)
+    return <Empty label="Not enough history" hint="Burnup needs at least two days." />;
 
   // Reserve horizontal room for the projection so the forecast is visible
   // rather than clipped at the right edge.
@@ -395,7 +409,9 @@ export function BurnupChart({
 
   const last = data.at(-1)!;
   const summary = `${last.completed} of ${last.scope} complete. ${
-    forecast.ok ? `Forecast completion ${forecast.completionDate}.` : `No forecast: ${forecast.reason}.`
+    forecast.ok ?
+      `Forecast completion ${forecast.completionDate}.`
+    : `No forecast: ${forecast.reason}.`
   }`;
 
   return (
@@ -416,7 +432,7 @@ export function BurnupChart({
         <polyline points={line('scope')} className="line-scope" fill="none" />
         <polyline points={line('completed')} className="line-done" fill="none" />
 
-        {forecast.ok ? (
+        {forecast.ok ?
           <>
             <line
               x1={n(x(data.length - 1))}
@@ -429,26 +445,24 @@ export function BurnupChart({
               {forecast.completionDate}
             </text>
           </>
-        ) : null}
+        : null}
 
-        {targetDate ? (
+        {targetDate ?
           <text x={W - PAD.right} y={PAD.top} className="tick" textAnchor="end">
             target {targetDate}
           </text>
-        ) : null}
+        : null}
 
         <line x1={PAD.left} y1={y(0)} x2={W - PAD.right} y2={y(0)} className="axis" />
       </svg>
       <figcaption>
         <span className="key key-done" /> completed
         <span className="key key-scope" /> total scope
-        {forecast.ok ? (
+        {forecast.ok ?
           <>
             <span className="key key-forecast" /> projection (r²&nbsp;{forecast.r2})
           </>
-        ) : (
-          <em className="muted">no projection — {forecast.reason}</em>
-        )}
+        : <em className="muted">no projection — {forecast.reason}</em>}
       </figcaption>
       <DataTable
         caption="Burnup"
@@ -471,7 +485,10 @@ export function BurnupChart({
 export function AgeBar({ days, median, p85 }: { days: number; median: number; p85: number }) {
   const ceiling = Math.max(p85 * 2, days, 1);
   const pct = (v: number) => `${Math.min(100, (v / ceiling) * 100)}%`;
-  const state = days > p85 ? 'over' : days > median ? 'warn' : 'ok';
+  const state =
+    days > p85 ? 'over'
+    : days > median ? 'warn'
+    : 'ok';
   return (
     <span
       className={`agebar agebar-${state}`}
