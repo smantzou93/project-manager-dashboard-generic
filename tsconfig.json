@@ -17,6 +17,7 @@
   },
   "include": [
     "packages/db/src/**/*.ts",
+    "packages/logger/src/**/*.ts",
     "packages/db/drizzle.config.ts",
     "tests/fixtures.ts",
     "tests/unit/**/*.ts",

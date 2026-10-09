@@ -17,6 +17,7 @@ import {
 } from '../../components/charts';
 import { AgingTable, Panel, Tile, TriggerList } from '../../components/ui';
 import { fmtDays, getViewContext, plural } from '../../lib/view-context';
+import { withRequest } from '../../lib/request';
 
 /** Percentage change, guarding division by zero and reporting 0 for no base. */
 function pctChange(now: number, before: number): number {
@@ -32,7 +33,7 @@ export const dynamic = 'force-dynamic';
 
 export default async function DashboardPage() {
   const { asOf, labels } = await getViewContext();
-  const snap = await dashboardSnapshot(asOf);
+  const snap = await withRequest('/dashboard', () => dashboardSnapshot(asOf));
 
   // Prior-period comparison for the tiles. Excludes the current partial week,
   // which is always lower and would otherwise show a decline every Monday.
