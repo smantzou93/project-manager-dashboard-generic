@@ -154,9 +154,78 @@ fi
 
 mkdir -p "$PMD_LOG_DIR"
 
+# --- Credential / volume mismatch --------------------------------------------
+# Postgres reads POSTGRES_PASSWORD once, at initdb, against an empty volume.
+# Regenerating .env afterwards leaves the file and the running database
+# disagreeing, and nothing says so: connections just fail with a bare
+# authentication error that looks like a config typo.
+#
+# This happened here for real -- regenerating .env to fix a secret-generation
+# bug invalidated the existing volume -- so it is detected rather than left for
+# the next person to work out.
+check_credentials() {
+  load_env
+  [ -n "${DATABASE_URL:-}" ] || return 0
+  docker_daemon_up || return 0
+  docker inspect pmdash-db >/dev/null 2>&1 || return 0
+  [ "$(docker inspect --format '{{.State.Status}}' pmdash-db 2>/dev/null)" = running ] || return 0
+  [ -d "$PMD_ROOT/node_modules/postgres" ] || return 0
+
+  # Checked from the HOST, over the published port, because that is the path
+  # the application uses and the only one where the password is actually
+  # verified.
+  #
+  # Two earlier attempts were vacuous: psql inside the container uses the unix
+  # socket, and the postgres image's pg_hba.conf also trusts 127.0.0.1 from
+  # inside the container. Both reported success against a deliberately wrong
+  # password, which is worse than no check at all.
+  local output
+  output="$(cd "$PMD_ROOT" && node --input-type=module -e "
+    import postgres from 'postgres';
+    const sql = postgres(process.env.DATABASE_URL, { max: 1, connect_timeout: 5, onnotice: () => {} });
+    try { await sql\`select 1\`; console.log('OK'); }
+    catch (e) { console.log('ERR:' + e.message); }
+    finally { await sql.end({ timeout: 2 }).catch(() => {}); }
+  " 2>&1)"
+
+  case "$output" in
+    *OK*)
+      ok "The database accepts the credentials in .env."
+      return 0
+      ;;
+    *password*authentication*failed*|*SASL*|*28P01*)
+      hr
+      err "The database rejects the password in .env."
+      say ""
+      say "  Postgres reads POSTGRES_PASSWORD only at initdb, on the first start"
+      say "  against an empty volume. If .env was regenerated after the volume"
+      say "  was created, the two now disagree and nothing else will tell you."
+      say ""
+      say "  If the local data is disposable:"
+      say "      ${C_BOLD}./scripts/db-reset.sh --yes --volume${C_RESET}"
+      say ""
+      say "  To keep it, back up first -- see docs/RUNBOOK.md,"
+      say "  \"Rotating the database password\"."
+      return 1
+      ;;
+    *)
+      warn "Could not verify the database credentials: $(printf '%s' "$output" | head -1)"
+      return 0
+      ;;
+  esac
+}
+
+info "Database credentials"
+CREDENTIALS_OK=1
+check_credentials || CREDENTIALS_OK=0
+
 hr
 if [ "$MISSING_HARD" -gt 0 ]; then
   err "Still missing $MISSING_HARD required tool(s). Re-run after installing."
+  exit 1
+fi
+if [ "$CREDENTIALS_OK" -eq 0 ]; then
+  err "Tooling is fine, but the database and .env disagree. See above."
   exit 1
 fi
 ok "Preflight passed."
