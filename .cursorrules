@@ -1,0 +1,22 @@
+Read AGENTS.md first. It is the single source of truth for this repository:
+layout, invariants, conventions, traps and how to verify a change.
+
+Non-negotiable invariants (each has caused a real bug here):
+
+1. Domain vocabulary lives in taxonomy_terms, never in a Postgres enum.
+   Postgres cannot remove an enum value, and this app promises deletable
+   categories.
+2. Branch on status_category, never on a status label. That column is what
+   lets a construction PM's "Awaiting inspection" work with every chart.
+3. status_transitions is append-only and monotonic. Flow metrics derive from
+   it; a status change without a transition is invisible to every chart.
+4. Metrics take an explicit asOf. Never call now() inside a query.
+5. Lead time measures from source_created_at, never created_at.
+6. Exclude group items from aggregates: not ('group' = any(wi.labels)).
+7. The repository is public. No secrets in code, config, logs or fixtures.
+8. UI labels come from the active preset. Never hardcode a domain noun.
+
+Conventions: strict TypeScript, Prettier owns formatting, relative imports
+inside workspace packages are extensionless, comments explain why.
+
+Verify with: npm run lint && npm run typecheck && npm test
