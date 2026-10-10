@@ -26,6 +26,20 @@ const PORT = Number(process.env.PMDASH_TEST_PORT ?? 3210);
  * the stack itself, and should not try.
  */
 const EXTERNAL = process.env.PMDASH_BASE_URL;
+
+/**
+ * Skip the stack preparation and start only the app.
+ *
+ * CI provides Postgres as a service container and seeds the fixture in its
+ * own step, so `dev.sh` must not run there: it would reach for
+ * `docker compose`, which has no .env to interpolate and fails with
+ * "required variable POSTGRES_PASSWORD is missing a value".
+ *
+ * That is precisely what happened — this flag was set in the workflow and
+ * read by nothing, so CI tried to boot the stack on top of a stack that was
+ * already there.
+ */
+const SKIP_STACK = process.env.PMDASH_SKIP_STACK === '1';
 const BASE_URL = EXTERNAL ?? `http://127.0.0.1:${PORT}`;
 
 export default defineConfig({
@@ -118,8 +132,10 @@ export default defineConfig({
     EXTERNAL ? undefined : (
       {
         command:
-          `./scripts/dev.sh --yes --pinned --preset ${FIXTURE_PRESET} --seed-only && ` +
-          `npx next dev apps/web -p ${PORT}`,
+          SKIP_STACK ?
+            `npx next dev apps/web -p ${PORT}`
+          : `./scripts/dev.sh --yes --pinned --preset ${FIXTURE_PRESET} --seed-only && ` +
+            `npx next dev apps/web -p ${PORT}`,
         url: BASE_URL,
         reuseExistingServer: !process.env.CI,
         timeout: 180_000,

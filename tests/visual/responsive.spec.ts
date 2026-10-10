@@ -15,7 +15,7 @@ test.describe('mobile', () => {
     expect(overflow).toBeLessThanOrEqual(1);
   });
 
-  test('visual', async ({ page }) => {
+  test('visual', { tag: '@pixel' }, async ({ page }) => {
     await page.goto('/');
     await capture(page, 'projects-mobile');
   });

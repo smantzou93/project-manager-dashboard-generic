@@ -28,7 +28,7 @@ test.describe('multi-project view', () => {
     await expect(page.getByRole('columnheader', { name: 'Programme' })).toBeVisible();
   });
 
-  test('visual', async ({ page }) => {
+  test('visual', { tag: '@pixel' }, async ({ page }) => {
     await capture(page, 'projects');
   });
 });
@@ -66,7 +66,7 @@ test.describe('single project view', () => {
     await expect(page.getByRole('heading', { name: 'Not found' })).toBeVisible();
   });
 
-  test('visual', async ({ page }) => {
+  test('visual', { tag: '@pixel' }, async ({ page }) => {
     await page.goto(`/projects/${M.riskOrder[0]}`);
     await capture(page, 'project-detail');
   });

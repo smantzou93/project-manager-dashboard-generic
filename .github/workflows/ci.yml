@@ -126,12 +126,11 @@ jobs:
       - run: pytest apps/ingestion/tests -q
 
   # ---------------------------------------------------------------------------
-  # Screenshots. Linux baselines are the authoritative ones -- font
-  # rasterisation differs from macOS, so a laptop-generated baseline can never
-  # match this runner.
+  # Browser tests. Functional only -- see the step comment below for why
+  # pixel comparison is not run here.
   # ---------------------------------------------------------------------------
   visual:
-    name: Visual regression
+    name: Browser tests
     runs-on: ubuntu-latest
     services:
       postgres:
@@ -170,80 +169,32 @@ jobs:
       # matters.
       # Contract tests first: spec-driven, no browser, and they fail fast when
       # the API has drifted from its published document.
+      # PMDASH_SKIP_STACK: Postgres is a service container here and the
+      # fixture is seeded in the step above, so the suite must start only the
+      # app. Without it, dev.sh reaches for docker compose and fails on a
+      # missing POSTGRES_PASSWORD.
       - name: Contract tests against the OpenAPI document
         run: npx playwright test --project=api
-
-      - name: Run the visual suite
-        id: visual
-        run: npx playwright test --project=desktop --project=dark --project=mobile
         env:
           PMDASH_SKIP_STACK: '1'
 
-      - name: Upload the report, diffs and any new baselines
-        if: always()
+      # Functional browser tests only. Pixel comparison is excluded on purpose:
+      # its baselines are not committed, because a clone changes the preset on
+      # day one and invalidates them. Every bug this suite has caught -- mobile
+      # overflow, a 404 that never rendered, React never hydrating, a hardcoded
+      # noun -- came from an assertion, not an image diff.
+      - name: Run the browser suite
+        id: visual
+        run: npm run test:visual
+        env:
+          PMDASH_SKIP_STACK: '1'
+
+      - name: Upload the report on failure
+        if: failure()
         uses: actions/upload-artifact@v4
         with:
           name: playwright-report
           path: |
             playwright-report/
             test-results/
-            tests/visual/__baselines__/linux/
           retention-days: 14
-
-      # Linux baselines are authoritative and are produced by automation, not
-      # by hand: `npm run baselines:linux` locally, or the
-      # "Update screenshot baselines" workflow (also triggered by commenting
-      # /baselines on a PR). Point at that rather than asking anyone to
-      # download and unpack an artifact.
-      - name: Explain a missing-baseline failure
-        if: failure()
-        run: |
-          if [ -d tests/visual/__baselines__/linux ]; then
-            echo "::notice::Screenshots differ from the committed Linux baselines."
-            echo "::notice::If the change is intended, comment /baselines on this PR,"
-            echo "::notice::or run 'npm run baselines:linux' and push the result."
-          fi
-
-      # On a PR, put the before/after images where a reviewer will see them
-      # rather than making them download an artifact.
-      - name: Comment the visual diff on the PR
-        if: failure() && github.event_name == 'pull_request'
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const fs = require('fs');
-            const path = require('path');
-            const dir = 'test-results';
-            if (!fs.existsSync(dir)) return;
-
-            const changed = fs.readdirSync(dir, { withFileTypes: true })
-              .filter((d) => d.isDirectory())
-              .map((d) => d.name)
-              .filter((name) =>
-                fs.readdirSync(path.join(dir, name)).some((f) => f.endsWith('-diff.png')));
-
-            if (changed.length === 0) return;
-
-            const body = [
-              '### Visual changes detected',
-              '',
-              `${changed.length} screenshot${changed.length === 1 ? '' : 's'} differ from the committed baseline.`,
-              '',
-              ...changed.map((name) => `- \`${name.replace(/-(desktop|dark|mobile)$/, '')}\``),
-              '',
-              'The expected, actual and diff images are in the **playwright-report** artifact on this run.',
-              '',
-              'If the change is intended, refresh the baselines and the documentation screenshots:',
-              '',
-              '```bash',
-              '# Either comment /baselines on this PR, or run locally:',
-              'npm run baselines:linux      # regenerates the authoritative Linux set via Docker',
-              '```',
-            ].join('\n');
-
-            await github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body,
-            });

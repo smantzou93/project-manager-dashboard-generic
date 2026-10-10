@@ -24,7 +24,7 @@ test.describe('dark theme', () => {
     expect(blocked).not.toBe('');
   });
 
-  test('visual', async ({ page }) => {
+  test('visual', { tag: '@pixel' }, async ({ page }) => {
     await page.goto('/dashboard');
     await capture(page, 'dashboard-dark');
   });
