@@ -9,7 +9,13 @@
 # slow loop and easy to get wrong.
 #
 # So: the app and the database run on the host as usual, and only the browser
-# runs in a Linux container — the same image CI uses, so the pixels match.
+# runs in a Linux container.
+#
+# It matches CI's platform, NOT its fonts. CI installs Chromium with
+# --with-deps on ubuntu-latest, which brings a different font set than this
+# image ships, and text width follows the fonts: a page measuring zero
+# overflow here overflowed by 35px on a runner. Close enough to chase a
+# Linux-only layout bug; not pixel-identical to this CI.
 #
 # node_modules lives in a named volume rather than the mounted repo, because
 # the host's copy contains macOS binaries that cannot execute in the container.
