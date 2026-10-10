@@ -99,7 +99,19 @@ a:hover {
   height: 1px;
   overflow: hidden;
   clip: rect(0 0 0 0);
+  clip-path: inset(50%);
   white-space: nowrap;
+  /*
+   * A <table> ignores `width: 1px` and lays out at its content width, and
+   * `clip` only hides painting, not layout. The chart data tables are
+   * tables, so they sat ~400px wide and pushed the document sideways on any
+   * viewport narrower than their content — which on a CI runner, with wider
+   * fonts, meant a phone-width page scrolled horizontally.
+   *
+   * max-width plus fixed layout is what actually constrains a table.
+   */
+  max-width: 1px;
+  table-layout: fixed;
 }
 
 /* --- shell --------------------------------------------------------------- */
