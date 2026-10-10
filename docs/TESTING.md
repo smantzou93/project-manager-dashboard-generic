@@ -114,9 +114,8 @@ anticipated — but they are not load-bearing, and CI does not run them.
 ### If you do want pixel regression in CI
 
 Font rasterisation differs between macOS and Linux, so a baseline captured on
-a laptop can never match a Linux runner. `scripts/baselines-linux.sh`
-generates matching ones by running the browser in the same container image CI
-uses, with the app and database still on your machine:
+a laptop can never match a Linux runner. `scripts/baselines-linux.sh` runs the
+browser in a Linux container with the app and database still on your machine:
 
 ```bash
 npm run baselines:linux            # generate
@@ -124,8 +123,17 @@ npm run baselines:linux -- --check # compare, as CI would
 ```
 
 Commit `tests/visual/__baselines__/linux/` (you would need to un-ignore it),
-and add `npm run test:pixel` to the CI job. Worth it for a product; probably
-not worth it for a template.
+and add `npm run test:pixel` to the CI job.
+
+**One caveat, learned the hard way.** The container matches CI's _platform_,
+not its _fonts_: CI installs Chromium with `--with-deps` on `ubuntu-latest`,
+which brings a different font set than the Playwright image ships. A page that
+measured zero overflow on macOS and zero in the container overflowed by 35px
+on a runner. So the container will get you close, and it is the right tool for
+a Linux-only layout bug, but it is not pixel-identical to this CI. If you want
+that, run the browser the same way CI does rather than from the image.
+
+Worth it for a product; probably not worth it for a template.
 
 ### Documentation screenshots
 
