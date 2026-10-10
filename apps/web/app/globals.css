@@ -59,8 +59,24 @@
   box-sizing: border-box;
 }
 
+html {
+  /*
+   * The document must never scroll sideways. `clip` rather than `hidden`:
+   * hidden makes the element a scroll container, which breaks the sticky
+   * topbar; clip does not.
+   *
+   * This is a backstop, not the fix — wide content is handled by the scroll
+   * containers below. It exists because text width varies with the font set,
+   * and CI's fonts are not the ones on any developer's machine: the same page
+   * overflowed by 35px on a GitHub runner while measuring 0 locally and 0 in
+   * the Playwright container.
+   */
+  overflow-x: clip;
+}
+
 body {
   margin: 0;
+  max-width: 100%;
   background: var(--bg);
   color: var(--text);
   font-family: var(--sans);
@@ -642,6 +658,9 @@ table.data .key-cell {
     gap: 12px;
     overflow-x: auto;
     scrollbar-width: none;
+    /* Without this the bar sizes to its content and widens the document
+       instead of scrolling its own overflow. */
+    max-width: 100%;
   }
   .topbar::-webkit-scrollbar {
     display: none;
