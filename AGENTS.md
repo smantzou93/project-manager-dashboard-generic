@@ -168,17 +168,13 @@ npm run ingest:test                             # Python
 A change to a metric definition should **break a test**. If it does not, the
 metric was not covered and you should add the coverage with the change.
 
-A change to a view will fail the visual suite. Review the diff, then
-regenerate the baselines — **Linux is the authoritative set and CI compares
-against it**, so do not just update the local one:
+A change to a view will not fail anything by default. Pixel comparison is
+opt-in (`npm run test:pixel`) and its baselines are deliberately not
+committed — a clone changes the preset on day one, which invalidates every
+screenshot. The functional browser tests are the ones that matter and they
+need no baselines.
 
-```bash
-npm run baselines:linux      # via Docker; app and database stay on the host
-```
-
-Or comment `/baselines` on the pull request and let CI commit them.
-`npm run test:visual:update` only refreshes your own platform's copy, which is
-gitignored and which nothing compares against.
+If you change the README images, refresh them with `npm run screenshots`.
 
 ---
 

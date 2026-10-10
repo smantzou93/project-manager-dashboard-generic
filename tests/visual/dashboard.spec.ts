@@ -71,7 +71,7 @@ test.describe('dashboard', () => {
     expect(ranks).toEqual([...ranks].sort((a, b) => a - b));
   });
 
-  test('visual', async ({ page }) => {
+  test('visual', { tag: '@pixel' }, async ({ page }) => {
     await capture(page, 'dashboard');
   });
 });

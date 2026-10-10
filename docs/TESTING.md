@@ -61,74 +61,81 @@ npm run test:visual
 
 ## Screenshots
 
-Two sets, for two purposes.
+Two different things, often confused, with very different value here.
 
-**Baselines** live in `tests/visual/__baselines__/<platform>/` and exist to
-catch regressions. **Documentation screenshots** live in `docs/screenshots/`
-and are what the README and the docs display.
-
-Both come from the same capture, so the image in the README is the one the
-suite asserts against and the two cannot quietly drift apart.
+### Functional browser tests — run by default
 
 ```bash
-npm run test:visual           # compare against baselines
-npm run test:visual:update    # accept the current rendering as the baseline
-npm run screenshots           # also refresh the documentation set
+npm run test:visual
 ```
 
-### Why baselines are per platform
+Real assertions in a real browser: KPI values, the risk ordering, that no
+preset-specific noun leaks into the UI, that the page does not scroll
+sideways at phone width, that a 404 actually renders. **These need no
+baselines** and are unaffected by changing the preset or editing the UI.
 
-Font rasterisation differs between macOS and Linux. The antialiasing on text
-alone accounts for a few hundred differing pixels on a chart-heavy page, so a
-baseline captured on a laptop can never match a Linux CI runner.
+Every bug this suite has caught came from one of these, not from an image:
 
-Each platform keeps its own directory and **Linux is authoritative**. A macOS
-baseline is a local convenience; if the two disagree, the Linux one is right.
+| Bug                                          | Caught by                             |
+| -------------------------------------------- | ------------------------------------- |
+| Page scrolled sideways on mobile             | `scrollWidth - clientWidth` assertion |
+| 404 body never rendering                     | `getByRole('heading')` assertion      |
+| React never hydrating at all                 | the hydration probe                   |
+| "Sprint" leaking into a construction install | text-content assertion                |
 
-### Generating the Linux baselines
-
-Two ways, neither of which involves downloading anything by hand.
-
-**Locally, via Docker** — when you want them before pushing:
+### Pixel comparison — opt-in
 
 ```bash
-npm run baselines:linux
+npm run test:pixel          # compare
+npm run test:pixel:update   # accept the current rendering
 ```
 
-The app and the database stay on your machine; only the browser runs in a
-container, using the same image CI does, so the pixels match. `node_modules`
-lives in a named volume rather than the mounted repository, because the host's
-copy contains macOS binaries that cannot execute in a Linux container. The
-first run installs into that volume; later runs reuse it.
+**Baselines are not committed**, and neither are they generated in CI.
 
-**In CI** — when you would rather not think about it:
+This repository exists to be cloned and re-pointed at another industry. The
+first thing a clone does is change the preset — which changes every label and
+every number on every screen. Any baseline shipped here would be stale on
+arrival, and the new owner's first job would be deleting 1.2MB of someone
+else's screenshots.
 
-- Comment `/baselines` on a pull request, or
-- run **Update screenshot baselines** from the Actions tab.
+So Playwright writes them on first run, locally, for whoever is running it.
+They are gitignored.
 
-It regenerates on `ubuntu-latest`, commits to the branch, and replies saying
-what it did. It refreshes `docs/screenshots/` at the same time, so the images
-in the README never drift from what the app renders.
+**Your first `npm run test:pixel` will fail.** That is Playwright's normal
+behaviour for a missing snapshot: it writes the baseline and reports the test
+as failed. Run it again and it passes. Verified: first run 5 failed, second
+run 5 passed.
 
-The comment trigger only accepts people who can already write to the
-repository, because the job pushes commits.
+Being honest about the value: in this project, pixel diffs have caught **zero**
+bugs. Every failure has been an intended change. They are kept because they
+are cheap to run and occasionally catch a layout regression that no assertion
+anticipated — but they are not load-bearing, and CI does not run them.
 
-### What makes a capture reproducible
+### If you do want pixel regression in CI
 
-Beyond the clock, the config pins everything that would otherwise vary:
+Font rasterisation differs between macOS and Linux, so a baseline captured on
+a laptop can never match a Linux runner. `scripts/baselines-linux.sh`
+generates matching ones by running the browser in the same container image CI
+uses, with the app and database still on your machine:
 
-- fixed viewport and `deviceScaleFactor: 1` — a fractional ratio resamples text
-  differently per machine
-- `reducedMotion`, `animations: 'disabled'`, `caret: 'hide'`
-- `timezoneId: 'UTC'`, `locale: 'en-GB'`, explicit `colorScheme`
-- a wait on `document.fonts.ready` — `networkidle` is not enough, because web
-  fonts swap in after first paint and reflow every label
-- charts are hand-written inline SVG rather than a charting library, because a
-  library that animates on mount or derives tick counts from measured width
-  renders differently on every run
+```bash
+npm run baselines:linux            # generate
+npm run baselines:linux -- --check # compare, as CI would
+```
 
-`maxDiffPixelRatio` is `0.002`. A couple of stray antialiased pixels are not a
-regression; a changed chart is thousands.
+Commit `tests/visual/__baselines__/linux/` (you would need to un-ignore it),
+and add `npm run test:pixel` to the CI job. Worth it for a product; probably
+not worth it for a template.
+
+### Documentation screenshots
+
+Separate from all of the above, and these _are_ committed — they are the
+images in the README, and showing a reader what the app looks like is worth
+1.2MB.
+
+```bash
+npm run screenshots
+```
 
 ## Why screenshots are not in pre-commit
 

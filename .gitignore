@@ -60,11 +60,15 @@ next-env.d.ts
 test-results/
 playwright-report/
 
-# Screenshot baselines: only the Linux set is committed.
+# Screenshot baselines are NOT committed.
 #
-# Linux is authoritative -- font rasterisation differs from macOS, so a
-# locally captured baseline can never match CI. Committing the macOS set as
-# well meant 1.2MB of churn on every UI change for files nothing compares
-# against. Generate the real ones with `npm run baselines:linux`.
-tests/visual/__baselines__/*
-!tests/visual/__baselines__/linux/
+# This repository exists to be cloned and re-pointed at another industry. The
+# first thing a clone does is change the preset, which changes every label and
+# every number on every screen -- so any baseline shipped here is stale on
+# arrival and the new owner has to delete it before they can do anything.
+#
+# Pixel comparison is therefore opt-in (`npm run test:pixel`), and Playwright
+# writes the baselines on first run. The functional browser tests, which are
+# the ones that have actually caught bugs here, need no baselines and run by
+# default.
+tests/visual/__baselines__/
