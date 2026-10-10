@@ -59,3 +59,12 @@ next-env.d.ts
 # Playwright
 test-results/
 playwright-report/
+
+# Screenshot baselines: only the Linux set is committed.
+#
+# Linux is authoritative -- font rasterisation differs from macOS, so a
+# locally captured baseline can never match CI. Committing the macOS set as
+# well meant 1.2MB of churn on every UI change for files nothing compares
+# against. Generate the real ones with `npm run baselines:linux`.
+tests/visual/__baselines__/*
+!tests/visual/__baselines__/linux/

@@ -82,15 +82,36 @@ Font rasterisation differs between macOS and Linux. The antialiasing on text
 alone accounts for a few hundred differing pixels on a chart-heavy page, so a
 baseline captured on a laptop can never match a Linux CI runner.
 
-Rather than pretend otherwise, each platform keeps its own directory and **CI
-(Linux) is authoritative**. A macOS baseline is a local convenience; if the two
-disagree, the Linux one is right.
+Each platform keeps its own directory and **Linux is authoritative**. A macOS
+baseline is a local convenience; if the two disagree, the Linux one is right.
 
-**Bootstrapping the Linux set.** They cannot be produced on a laptop, so the
-first CI run writes them and fails. Download the `playwright-report` artifact
-from that run, commit `tests/visual/__baselines__/linux/`, and every run after
-that compares against them. The workflow prints a notice saying exactly this
-when it happens.
+### Generating the Linux baselines
+
+Two ways, neither of which involves downloading anything by hand.
+
+**Locally, via Docker** — when you want them before pushing:
+
+```bash
+npm run baselines:linux
+```
+
+The app and the database stay on your machine; only the browser runs in a
+container, using the same image CI does, so the pixels match. `node_modules`
+lives in a named volume rather than the mounted repository, because the host's
+copy contains macOS binaries that cannot execute in a Linux container. The
+first run installs into that volume; later runs reuse it.
+
+**In CI** — when you would rather not think about it:
+
+- Comment `/baselines` on a pull request, or
+- run **Update screenshot baselines** from the Actions tab.
+
+It regenerates on `ubuntu-latest`, commits to the branch, and replies saying
+what it did. It refreshes `docs/screenshots/` at the same time, so the images
+in the README never drift from what the app renders.
+
+The comment trigger only accepts people who can already write to the
+repository, because the job pushes commits.
 
 ### What makes a capture reproducible
 

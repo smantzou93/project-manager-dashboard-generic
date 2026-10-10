@@ -190,18 +190,18 @@ jobs:
             tests/visual/__baselines__/linux/
           retention-days: 14
 
-      # Bootstrap: on the very first run there are no Linux baselines, because
-      # they cannot be generated on a laptop -- font rasterisation differs, so
-      # a macOS baseline can never match this runner. Playwright writes them
-      # and fails. Download them from the artifact above and commit them once;
-      # from then on this step is a no-op.
+      # Linux baselines are authoritative and are produced by automation, not
+      # by hand: `npm run baselines:linux` locally, or the
+      # "Update screenshot baselines" workflow (also triggered by commenting
+      # /baselines on a PR). Point at that rather than asking anyone to
+      # download and unpack an artifact.
       - name: Explain a missing-baseline failure
         if: failure()
         run: |
           if [ -d tests/visual/__baselines__/linux ]; then
-            echo "::notice::Linux baselines were written by this run."
-            echo "::notice::If this is the first CI run, download the playwright-report"
-            echo "::notice::artifact and commit tests/visual/__baselines__/linux/."
+            echo "::notice::Screenshots differ from the committed Linux baselines."
+            echo "::notice::If the change is intended, comment /baselines on this PR,"
+            echo "::notice::or run 'npm run baselines:linux' and push the result."
           fi
 
       # On a PR, put the before/after images where a reviewer will see them
@@ -236,8 +236,8 @@ jobs:
               'If the change is intended, refresh the baselines and the documentation screenshots:',
               '',
               '```bash',
-              'npm run test:visual:update   # Linux baselines are authoritative; see docs/TESTING.md',
-              'npm run screenshots          # refresh the images used in the README and docs',
+              '# Either comment /baselines on this PR, or run locally:',
+              'npm run baselines:linux      # regenerates the authoritative Linux set via Docker',
               '```',
             ].join('\n');
 

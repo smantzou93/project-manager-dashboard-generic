@@ -46,7 +46,8 @@
     "ingest:setup": "python3 -m venv apps/ingestion/.venv && apps/ingestion/.venv/bin/pip install -q -e 'apps/ingestion[dev]'",
     "ingest:test": "apps/ingestion/.venv/bin/python -m pytest apps/ingestion/tests -q",
     "ingest:lint": "apps/ingestion/.venv/bin/ruff check apps/ingestion",
-    "hooks:install": "git config core.hooksPath .githooks && echo 'git hooks enabled (.githooks)'"
+    "hooks:install": "git config core.hooksPath .githooks && echo 'git hooks enabled (.githooks)'",
+    "baselines:linux": "./scripts/baselines-linux.sh"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

@@ -108,6 +108,8 @@ npm run test:integration                        # needs the pinned fixture
 npm run test:visual                             # needs the app and a browser
 npm run ingest:test                             # Python
 npm run screenshots                             # refresh docs/screenshots/
+npm run baselines:linux                         # regenerate the authoritative Linux baselines
+npm run baselines:linux -- --check              # compare without rewriting, as CI does
 ```
 
 The integration and visual suites need the fixture seeded at a pinned instant:

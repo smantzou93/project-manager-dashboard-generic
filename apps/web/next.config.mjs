@@ -28,7 +28,9 @@ export default {
    *
    * Development only; it has no effect on a production build.
    */
-  allowedDevOrigins: ['127.0.0.1', 'localhost', '[::1]'],
+  // host.docker.internal is how the Linux container that generates the
+  // authoritative screenshot baselines reaches this server.
+  allowedDevOrigins: ['127.0.0.1', 'localhost', '[::1]', 'host.docker.internal'],
   // Next writes its own AGENTS.md on dev/build. Disabled because AGENTS.md is
   // this repo's single source of truth for agents (issue #35) and is written by
   // hand -- having the dev server silently overwrite it would be a bad day.

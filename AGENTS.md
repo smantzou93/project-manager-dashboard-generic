@@ -169,7 +169,16 @@ A change to a metric definition should **break a test**. If it does not, the
 metric was not covered and you should add the coverage with the change.
 
 A change to a view will fail the visual suite. Review the diff, then
-`npm run test:visual:update` if it is intended.
+regenerate the baselines — **Linux is the authoritative set and CI compares
+against it**, so do not just update the local one:
+
+```bash
+npm run baselines:linux      # via Docker; app and database stay on the host
+```
+
+Or comment `/baselines` on the pull request and let CI commit them.
+`npm run test:visual:update` only refreshes your own platform's copy, which is
+gitignored and which nothing compares against.
 
 ---
 

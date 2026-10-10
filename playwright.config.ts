@@ -17,7 +17,16 @@ import { FIXTURE_PRESET, PINNED_NOW_ISO } from './tests/fixtures';
  */
 
 const PORT = Number(process.env.PMDASH_TEST_PORT ?? 3210);
-const BASE_URL = `http://127.0.0.1:${PORT}`;
+
+/**
+ * PMDASH_BASE_URL points the suite at a server somebody else started.
+ *
+ * Used by scripts/baselines-linux.sh, which runs this suite inside a Linux
+ * container against the app running on the host — the container cannot start
+ * the stack itself, and should not try.
+ */
+const EXTERNAL = process.env.PMDASH_BASE_URL;
+const BASE_URL = EXTERNAL ?? `http://127.0.0.1:${PORT}`;
 
 export default defineConfig({
   testDir: './tests',
@@ -105,15 +114,18 @@ export default defineConfig({
    * runtime check and the migration-ledger assertion. If the setup diverges,
    * the tests stop telling you anything about the real thing.
    */
-  webServer: {
-    command:
-      `./scripts/dev.sh --yes --pinned --preset ${FIXTURE_PRESET} --seed-only && ` +
-      `npx next dev apps/web -p ${PORT}`,
-    url: BASE_URL,
-    reuseExistingServer: !process.env.CI,
-    timeout: 180_000,
-    stdout: 'pipe',
-    stderr: 'pipe',
-    env: { PMDASH_AS_OF: PINNED_NOW_ISO, PMDASH_SEED_NOW: PINNED_NOW_ISO },
-  },
+  webServer:
+    EXTERNAL ? undefined : (
+      {
+        command:
+          `./scripts/dev.sh --yes --pinned --preset ${FIXTURE_PRESET} --seed-only && ` +
+          `npx next dev apps/web -p ${PORT}`,
+        url: BASE_URL,
+        reuseExistingServer: !process.env.CI,
+        timeout: 180_000,
+        stdout: 'pipe',
+        stderr: 'pipe',
+        env: { PMDASH_AS_OF: PINNED_NOW_ISO, PMDASH_SEED_NOW: PINNED_NOW_ISO },
+      }
+    ),
 });
