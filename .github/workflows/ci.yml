@@ -169,8 +169,14 @@ jobs:
       # matters.
       # Contract tests first: spec-driven, no browser, and they fail fast when
       # the API has drifted from its published document.
+      # PMDASH_SKIP_STACK: Postgres is a service container here and the
+      # fixture is seeded in the step above, so the suite must start only the
+      # app. Without it, dev.sh reaches for docker compose and fails on a
+      # missing POSTGRES_PASSWORD.
       - name: Contract tests against the OpenAPI document
         run: npx playwright test --project=api
+        env:
+          PMDASH_SKIP_STACK: '1'
 
       # Functional browser tests only. Pixel comparison is excluded on purpose:
       # its baselines are not committed, because a clone changes the preset on
