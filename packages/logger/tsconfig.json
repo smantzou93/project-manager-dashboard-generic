@@ -1,0 +1,6 @@
+{
+  "//": "Matches the db package: bundler resolution and extensionless relative imports, because Turbopack does not apply TypeScript's .js -> .ts substitution inside a transpiled workspace package.",
+  "extends": "../db/tsconfig.json",
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules"]
+}

@@ -1,0 +1,29 @@
+{
+  "//": "Root config for typechecking the shared code and the test suites. The web app has its own tsconfig with the Next.js plugin and DOM libs.",
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022"],
+    "module": "Preserve",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "noEmit": true,
+    "types": ["node"]
+  },
+  "include": [
+    "packages/db/src/**/*.ts",
+    "packages/logger/src/**/*.ts",
+    "packages/db/drizzle.config.ts",
+    "tests/fixtures.ts",
+    "tests/unit/**/*.ts",
+    "tests/integration/**/*.ts",
+    "eslint.config.mjs",
+    "vitest.config.mts"
+  ],
+  "exclude": ["node_modules", "packages/db/migrations", "apps/web", "tests/visual", "**/.next"]
+}

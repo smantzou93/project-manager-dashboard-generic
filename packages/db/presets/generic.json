@@ -1,0 +1,210 @@
+{
+  "key": "generic",
+  "label": "Generic",
+  "description": "Domain-neutral starting point. Copy this file and edit it to describe your own field.",
+  "labels": {
+    "portfolio": "Portfolio",
+    "project": "Project",
+    "iteration": "Cycle",
+    "workItem": "Task",
+    "milestone": "Milestone",
+    "estimateUnit": "points",
+    "impediment": "Issue"
+  },
+  "taxonomies": [
+    {
+      "key": "work_item_type",
+      "label": "Task types",
+      "terms": [
+        { "slug": "group", "label": "Group", "color": "violet", "icon": "layers" },
+        {
+          "slug": "task",
+          "label": "Task",
+          "color": "slate",
+          "icon": "check-square",
+          "isDefault": true
+        },
+        { "slug": "issue", "label": "Issue", "color": "red", "icon": "alert-circle" },
+        { "slug": "decision", "label": "Decision", "color": "blue", "icon": "git-branch" },
+        { "slug": "review", "label": "Review", "color": "cyan", "icon": "eye" }
+      ]
+    },
+    {
+      "key": "workflow_status",
+      "label": "Workflow statuses",
+      "description": "Rename these to match your process; keep each pointed at a metrics bucket.",
+      "terms": [
+        {
+          "slug": "to_do",
+          "label": "To do",
+          "color": "slate",
+          "statusCategory": "todo",
+          "isDefault": true
+        },
+        {
+          "slug": "in_progress",
+          "label": "In progress",
+          "color": "blue",
+          "statusCategory": "in_progress"
+        },
+        { "slug": "review", "label": "Review", "color": "violet", "statusCategory": "in_review" },
+        { "slug": "blocked", "label": "Blocked", "color": "red", "statusCategory": "blocked" },
+        { "slug": "done", "label": "Done", "color": "green", "statusCategory": "done" },
+        {
+          "slug": "cancelled",
+          "label": "Cancelled",
+          "color": "slate",
+          "statusCategory": "cancelled"
+        }
+      ]
+    },
+    {
+      "key": "project_status",
+      "label": "Project statuses",
+      "terms": [
+        { "slug": "planning", "label": "Planning", "color": "cyan" },
+        { "slug": "active", "label": "Active", "color": "blue", "isDefault": true },
+        { "slug": "on_hold", "label": "On hold", "color": "amber" },
+        { "slug": "completed", "label": "Completed", "color": "green" },
+        { "slug": "cancelled", "label": "Cancelled", "color": "slate" }
+      ]
+    },
+    {
+      "key": "health",
+      "label": "Health",
+      "terms": [
+        { "slug": "on_track", "label": "On track", "color": "green" },
+        { "slug": "at_risk", "label": "At risk", "color": "amber" },
+        { "slug": "off_track", "label": "Off track", "color": "red" },
+        { "slug": "unknown", "label": "Not assessed", "color": "slate", "isDefault": true }
+      ]
+    },
+    {
+      "key": "priority",
+      "label": "Priority",
+      "terms": [
+        { "slug": "urgent", "label": "Urgent", "color": "red" },
+        { "slug": "high", "label": "High", "color": "orange" },
+        { "slug": "normal", "label": "Normal", "color": "amber", "isDefault": true },
+        { "slug": "low", "label": "Low", "color": "slate" }
+      ]
+    },
+    {
+      "key": "severity",
+      "label": "Severity",
+      "terms": [
+        { "slug": "low", "label": "Low", "color": "slate" },
+        { "slug": "medium", "label": "Medium", "color": "amber", "isDefault": true },
+        { "slug": "high", "label": "High", "color": "orange" },
+        { "slug": "critical", "label": "Critical", "color": "red" }
+      ]
+    },
+    {
+      "key": "impediment_kind",
+      "label": "Issue kinds",
+      "terms": [
+        { "slug": "blocker", "label": "Blocker", "color": "red", "isDefault": true },
+        { "slug": "risk", "label": "Risk", "color": "amber" },
+        { "slug": "dependency", "label": "Dependency", "color": "violet" }
+      ]
+    },
+    {
+      "key": "impediment_category",
+      "label": "What's holding us back",
+      "terms": [
+        { "slug": "dependency", "label": "Dependency", "color": "violet" },
+        { "slug": "resourcing", "label": "Resourcing", "color": "orange" },
+        { "slug": "unclear_scope", "label": "Unclear scope", "color": "amber" },
+        { "slug": "external", "label": "External party", "color": "pink" },
+        { "slug": "approval", "label": "Awaiting approval", "color": "blue" },
+        { "slug": "budget", "label": "Budget", "color": "cyan" },
+        { "slug": "other", "label": "Other", "color": "slate" }
+      ]
+    }
+  ],
+  "demo": {
+    "roles": [
+      "Project Manager",
+      "Lead",
+      "Contributor",
+      "Reviewer",
+      "Coordinator",
+      "Specialist",
+      "Analyst",
+      "Sponsor"
+    ],
+    "portfolios": [
+      { "key": "PORTFOLIO-A", "name": "Portfolio A", "description": "First group of projects." },
+      { "key": "PORTFOLIO-B", "name": "Portfolio B", "description": "Second group of projects." }
+    ],
+    "projects": [
+      {
+        "key": "ALPHA",
+        "name": "Project Alpha",
+        "portfolio": "PORTFOLIO-A",
+        "status": "active",
+        "health": "on_track",
+        "items": 110
+      },
+      {
+        "key": "BETA",
+        "name": "Project Beta",
+        "portfolio": "PORTFOLIO-A",
+        "status": "active",
+        "health": "at_risk",
+        "items": 95
+      },
+      {
+        "key": "GAMMA",
+        "name": "Project Gamma",
+        "portfolio": "PORTFOLIO-B",
+        "status": "active",
+        "health": "off_track",
+        "items": 120
+      },
+      {
+        "key": "DELTA",
+        "name": "Project Delta",
+        "portfolio": "PORTFOLIO-B",
+        "status": "completed",
+        "health": "on_track",
+        "items": 75
+      }
+    ],
+    "milestones": ["Kick-off", "First deliverable", "Second deliverable", "Close-out"],
+    "epics": ["Setup", "Core work", "Dependencies", "Wrap-up"],
+    "titleVerbs": [
+      "Prepare",
+      "Review",
+      "Complete",
+      "Update",
+      "Coordinate",
+      "Approve",
+      "Deliver",
+      "Assess"
+    ],
+    "titleNouns": [
+      "scope document",
+      "stakeholder update",
+      "budget forecast",
+      "risk register",
+      "resource plan",
+      "status report",
+      "quality check",
+      "handover pack",
+      "schedule revision",
+      "vendor brief",
+      "requirements list",
+      "sign-off package"
+    ],
+    "impedimentTitles": {
+      "dependency": ["Waiting on upstream team", "Dependent task not started"],
+      "resourcing": ["Key contributor unavailable", "Team at capacity"],
+      "unclear_scope": ["Scope not agreed with sponsor", "Conflicting requirements"],
+      "external": ["Third party unresponsive", "External review delayed"],
+      "approval": ["Sign-off outstanding", "Approval meeting not scheduled"],
+      "budget": ["Budget not confirmed", "Cost above threshold"],
+      "other": ["Unclassified blocker", "Needs investigation"]
+    }
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "//": "The visual suite needs DOM types: page.evaluate() bodies run in the browser, so document and getComputedStyle are real there. Kept separate from the root config so server code cannot reach for a DOM API and have it silently typecheck.",
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "types": ["node"]
+  },
+  "include": ["**/*.ts", "../api/**/*.ts", "../fixtures.ts", "../../playwright.config.ts"],
+  "//exclude": "Overridden deliberately. `exclude` is inherited from the extended config and its paths resolve against THAT file, so the root's \"tests/visual\" entry excluded this very directory -- tsc compiled the project with none of the specs in it, and eslint reported every spec as belonging to no project.",
+  "exclude": ["node_modules"]
+}

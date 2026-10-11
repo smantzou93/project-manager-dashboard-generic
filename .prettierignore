@@ -1,0 +1,7 @@
+node_modules/
+.next/
+dist/
+logs/
+packages/db/migrations/
+docs/screenshots/
+package-lock.json

@@ -1,0 +1,97 @@
+#!/usr/bin/env bash
+# Fast gates, run on every commit.
+#
+# Enable with:  npm run hooks:install   (sets core.hooksPath to .githooks)
+#
+# The hard rule here is SPEED. Everything below finishes in about a second and
+# needs nothing but node. A hook that boots Docker, Postgres and a browser
+# takes minutes, and a hook that takes minutes gets bypassed with --no-verify
+# inside a day -- at which point the cheap checks stop running too. So the
+# screenshots and the integration suite live in CI, where they can take as long
+# as they need. See .github/workflows/ci.yml and issue #43.
+#
+# Deliberate escape hatch: `git commit --no-verify` still works. This is a
+# convenience, not a security control; CI re-runs all of it.
+
+set -uo pipefail
+
+RED=$'\033[31m'; GRN=$'\033[32m'; YEL=$'\033[33m'; DIM=$'\033[2m'; OFF=$'\033[0m'
+failed=0
+t0=$(date +%s)
+
+step() {
+  local name="$1"; shift
+  local out
+  if out="$("$@" 2>&1)"; then
+    printf '%s  ok%s %s\n' "$GRN" "$OFF" "$name"
+  else
+    printf '%s FAIL%s %s\n' "$RED" "$OFF" "$name"
+    printf '%s\n' "$out" | tail -25 | sed 's/^/       /'
+    failed=1
+  fi
+}
+
+# Only consider files actually staged; an unrelated mess elsewhere in the tree
+# should not block an otherwise clean commit.
+staged() { git diff --cached --name-only --diff-filter=ACMR; }
+
+# No `mapfile`: macOS ships bash 3.2, which predates it, and these hooks have
+# to run on the shell people actually have.
+[ -z "$(staged)" ] && exit 0
+
+# --- secrets ---------------------------------------------------------------
+# This repo is public and .env sits in the working tree, one `git add -A`
+# away from being published. Checked first because it is the only failure
+# here that cannot be undone by a follow-up commit.
+if staged | grep -qE '(^|/)\.env$'; then
+  printf '%s FAIL%s .env is staged. It is gitignored for a reason; unstage it.\n' "$RED" "$OFF"
+  failed=1
+else
+  printf '%s  ok%s no .env staged\n' "$GRN" "$OFF"
+fi
+
+# Excluded, deliberately and narrowly:
+#   =%s / =%d   printf format strings that write a value in at run time
+#   ="$VAR      a shell variable reference, not a literal
+#   ci-not-a-secret   the throwaway password for CI's ephemeral Postgres
+# Anything else that looks like a literal assignment still blocks the commit.
+leaks="$(git diff --cached -U0 -- $(staged | grep -vE '\.(png|jpg|jpeg|gif|webp|ico|lock)$' || true) 2>/dev/null \
+  | grep -nE '^\+.*(POSTGRES_PASSWORD|APP_SECRET|DATABASE_URL)[[:space:]]*=[[:space:]]*[^$_[:space:]]' \
+  | grep -vE 'process\.env|__GENERATED|\$\{|example|placeholder' \
+  | grep -vE '=%[sd]|=\\?"?\$|ci-not-a-secret' || true)"
+if [ -n "$leaks" ]; then
+  printf '%s FAIL%s possible secret in the diff:\n' "$RED" "$OFF"
+  printf '%s\n' "$leaks" | head -5 | sed 's/^/       /'
+  failed=1
+else
+  printf '%s  ok%s no literal secrets in the diff\n' "$GRN" "$OFF"
+fi
+
+# --- code gates ------------------------------------------------------------
+# Skipped entirely when the commit touches no code, so a docs-only or
+# screenshot-only commit stays instant.
+if staged | grep -qE '\.(ts|tsx|mts|mjs|js|jsx|json|css)$'; then
+  step "format"     npm run --silent format:check
+  step "lint"       npm run --silent lint
+  step "typecheck"  npm run --silent typecheck
+  step "unit tests" npm run --silent test
+else
+  printf '%s skip%s no code staged; gates not run\n' "$DIM" "$OFF"
+fi
+
+# --- shell scripts ---------------------------------------------------------
+while IFS= read -r f; do
+  [ -f "$f" ] || continue
+  if ! bash -n "$f" 2>/dev/null; then
+    printf '%s FAIL%s shell syntax: %s\n' "$RED" "$OFF" "$f"
+    failed=1
+  fi
+done < <(staged | grep -E '\.sh$' || true)
+
+printf '%s      %ss%s\n' "$DIM" "$(( $(date +%s) - t0 ))" "$OFF"
+
+if [ "$failed" -ne 0 ]; then
+  printf '\n%sCommit blocked.%s Fix the above, or `git commit --no-verify` to skip.\n' "$YEL" "$OFF"
+  printf 'Most formatting and lint problems: %snpm run format && npm run lint:fix%s\n' "$DIM" "$OFF"
+  exit 1
+fi

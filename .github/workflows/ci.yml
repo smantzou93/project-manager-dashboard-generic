@@ -1,0 +1,200 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# A new push supersedes the previous run on the same ref; nobody needs the
+# results of a commit that has already been replaced.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '24'
+  # Structured logs go to stdout as well as to logs/, so a failing CI job
+  # carries its own trace in the run output.
+  LOG_LEVEL: info
+  PMD_LOG_TO_FILE: '0'
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # The same four commands the pre-commit hook runs. Fast, no services.
+  # ---------------------------------------------------------------------------
+  gates:
+    name: Lint, types and unit tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm ci
+      - run: npm run format:check
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test
+
+  # ---------------------------------------------------------------------------
+  # Metric definitions against the pinned fixture. Needs Postgres, which is why
+  # this is here and not in a git hook.
+  # ---------------------------------------------------------------------------
+  integration:
+    name: Metrics against the pinned fixture
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17.6-alpine
+        env:
+          POSTGRES_USER: pmdash
+          POSTGRES_PASSWORD: ci-not-a-secret
+          POSTGRES_DB: pmdash
+        ports: ['5432:5432']
+        # Without a healthcheck the job races initdb and fails intermittently,
+        # which is worse than failing consistently.
+        options: >-
+          --health-cmd "pg_isready -U pmdash"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+    env:
+      DATABASE_URL: postgres://pmdash:ci-not-a-secret@127.0.0.1:5432/pmdash
+      POSTGRES_USER: pmdash
+      POSTGRES_PASSWORD: ci-not-a-secret
+      POSTGRES_DB: pmdash
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm ci
+
+      # The suite refuses to run against a live-clock fixture, so the clock is
+      # pinned here exactly as tests/fixtures.ts expects.
+      - name: Prepare the fixture
+        run: |
+          printf 'DATABASE_URL=%s\n' "$DATABASE_URL" > .env
+          npm run db:migrate
+          PMDASH_SEED_NOW=2026-10-01T12:00:00Z npm run db:seed -- construction
+
+      - run: npm run test:integration
+
+  # ---------------------------------------------------------------------------
+  # Python importer. The fast tests need nothing; the db-marked ones need
+  # Postgres, so both run here rather than splitting the suite across jobs.
+  # ---------------------------------------------------------------------------
+  ingestion:
+    name: CSV ingestion
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17.6-alpine
+        env:
+          POSTGRES_USER: pmdash
+          POSTGRES_PASSWORD: ci-not-a-secret
+          POSTGRES_DB: pmdash
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U pmdash"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+    env:
+      DATABASE_URL: postgres://pmdash:ci-not-a-secret@127.0.0.1:5432/pmdash
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - run: npm ci
+      - run: pip install -e 'apps/ingestion[dev]'
+
+      - name: Prepare the fixture
+        run: |
+          printf 'DATABASE_URL=%s\n' "$DATABASE_URL" > .env
+          npm run db:migrate
+          PMDASH_SEED_NOW=2026-10-01T12:00:00Z npm run db:seed -- construction
+
+      - run: ruff check apps/ingestion
+      - run: pytest apps/ingestion/tests -q
+
+  # ---------------------------------------------------------------------------
+  # Browser tests. Functional only -- see the step comment below for why
+  # pixel comparison is not run here.
+  # ---------------------------------------------------------------------------
+  visual:
+    name: Browser tests
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17.6-alpine
+        env:
+          POSTGRES_USER: pmdash
+          POSTGRES_PASSWORD: ci-not-a-secret
+          POSTGRES_DB: pmdash
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U pmdash"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+    env:
+      DATABASE_URL: postgres://pmdash:ci-not-a-secret@127.0.0.1:5432/pmdash
+      PMDASH_AS_OF: '2026-10-01T12:00:00Z'
+      PMDASH_SEED_NOW: '2026-10-01T12:00:00Z'
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+
+      - name: Prepare the fixture
+        run: |
+          printf 'DATABASE_URL=%s\n' "$DATABASE_URL" > .env
+          npm run db:migrate
+          npm run db:seed -- construction
+
+      # dev.sh is skipped here: it starts a container runtime, and Postgres is
+      # already provided as a service. The fixture above is the part that
+      # matters.
+      # Contract tests first: spec-driven, no browser, and they fail fast when
+      # the API has drifted from its published document.
+      # PMDASH_SKIP_STACK: Postgres is a service container here and the
+      # fixture is seeded in the step above, so the suite must start only the
+      # app. Without it, dev.sh reaches for docker compose and fails on a
+      # missing POSTGRES_PASSWORD.
+      - name: Contract tests against the OpenAPI document
+        run: npx playwright test --project=api
+        env:
+          PMDASH_SKIP_STACK: '1'
+
+      # Functional browser tests only. Pixel comparison is excluded on purpose:
+      # its baselines are not committed, because a clone changes the preset on
+      # day one and invalidates them. Every bug this suite has caught -- mobile
+      # overflow, a 404 that never rendered, React never hydrating, a hardcoded
+      # noun -- came from an assertion, not an image diff.
+      - name: Run the browser suite
+        id: visual
+        run: npm run test:visual
+        env:
+          PMDASH_SKIP_STACK: '1'
+
+      - name: Upload the report on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 14
